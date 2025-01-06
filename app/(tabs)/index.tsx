@@ -16,36 +16,25 @@ import { useRefereshTokenQuery } from '@/redux/api/end-points/user';
 import { useAppDispatch, useAppSelector } from '@/utils/hooks';
 import { setUserId, setUserToken } from '@/redux/slices/user';
 import { set } from 'react-hook-form';
-import { apiSlice } from '@/redux/api/api-slice';
+import { apiSlice, baseUrl } from '@/redux/api/api-slice';
 import { SurveyType } from '@/utils/validation-schema';
-import { SurveyDetailsType } from '@/utils/types';
+import { PressTypes, SurveyDetailsType } from '@/utils/types';
 import { setSlectedSurvey } from '@/redux/slices/survey';
 import { Feather } from '@expo/vector-icons';
 import { Divider } from '@/components/ui/divider';
+import axios from "axios";
 
 export default function HomeScreen() {
   const userId = useAppSelector(state => state.user.userId);
+  const userToken = useAppSelector(state => state.user.token)
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [isFetching,setIsFetching] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [page, setPage] = React.useState(1);
-  const { data: userSurveys, isFetching: isUserSurveyFetching, error: userSurveyError, refetch: refetchUserSurvey, endpointName } = useFetchUserServeyQuery({ userId: userId, page: page });
+  const [totalPages,setTotalPages] = React.useState(1);
   const { data: tokenData, refetch: refetchRefereshToken, error: refereshError, isFetching: isTokenFetching } = useRefereshTokenQuery(undefined, { refetchOnFocus: true });
   const [allSurveys, setAllSurveys] = React.useState<any[]>([]);
-  console.log("USER ID", userId, endpointName);
-
-  useEffect(() => {
-    if (userSurveyError) {
-      console.log("Error", userSurveyError);
-      const error: any = userSurveyError;
-      if (error?.status == 401) {
-        ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-        handleLogout()
-      } else {
-        ToastAndroid.show("Unable to fetch surveys", ToastAndroid.SHORT);
-      }
-    }
-  }, [userSurveyError])
 
   useEffect(() => {
     if (tokenData?.access_token) { // Assuming tokenData contains a property named `token`
@@ -55,35 +44,59 @@ export default function HomeScreen() {
     }
   }, [tokenData]);
 
-  // console.log("TOKEN DATA",);
-  useFocusEffect(
-    // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
-    useCallback(() => {
-      // Invoked whenever the route is focused.
-      refetchUserSurvey();
-      refetchRefereshToken();
+  const fetchUserSurvey = async () => {
+    setIsFetching(true);
+    setAllSurveys(()=>([]));
+    try {
+      const response:any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${1}`,{headers:{
+        "Authorization":`Bearer ${userToken}`,
+        "Accept": "application/json"
+      }});
+      setAllSurveys((prevData)=>([...prevData,...response?.data?.survey_forms?.data]));
+      setTotalPages(response?.data?.survey_forms?.last_page || 1);
+      setPage(1);
+    } catch (error:any) {
+      if(error?.response?.status === 401){
+        handleLogout()
+        ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
+      }else{
+        ToastAndroid.show(error?.response?.data?.message.toString() || "Some error occured", ToastAndroid.SHORT);
+      }
+    }finally{
+      setIsFetching(false)
+    }
+  }
 
-      // Return function is invoked whenever the route gets out of focus.
+  const fetchMoreSurvey = async (pageNo:number) => {
+    try {
+      const response:any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${pageNo}`,{headers:{
+        "Authorization":`Bearer ${userToken}`,
+        "Accept": "application/json"
+      }});
+      setAllSurveys((prevData)=>([...prevData,...response?.data?.survey_forms?.data]));
+    } catch (error:any) {
+      if(error?.response?.status === 401){
+        handleLogout()
+        ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.SHORT);
+      }else{
+        ToastAndroid.show(error?.response?.data?.message.toString() || "Some error occured", ToastAndroid.SHORT);
+      }
+    } finally{
+      setIsLoading(false);
+    }
+  } 
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log("UNDER FOCUS EFFECT");
+      refetchRefereshToken();
+      fetchUserSurvey();
       return () => {
         console.log('This route is now unfocused.');
-        setPage(() => 1);
         setIsLoading(false);
-        setAllSurveys(() => []);
       };
     }, [])
   );
-
-  useEffect(() => {
-    console.log("USER SURVEYS");
-    if (userSurveys?.survey_forms?.data) {
-      setAllSurveys((prevSurveys) => [
-        ...prevSurveys,
-        ...userSurveys.survey_forms.data,
-      ]);
-      console.log("ALL SURVEYS");
-      setIsLoading(false);
-    }
-  }, [userSurveys]);
 
   const handleLogout = () => {
     clearLocal();
@@ -93,9 +106,14 @@ export default function HomeScreen() {
     router.replace('/signin');
   }
 
-  const handleView = (item: SurveyDetailsType) => {
+  const handleView = (item: SurveyDetailsType,type: PressTypes) => {
+    console.log("SELECTED SURVEY", item.ward_name);
     dispatch(setSlectedSurvey(item));
+    if(type === PressTypes.EDIT){
+      router.navigate("/form/edit");
+    }else{
     router.navigate("/details/survey-details");
+    }
   }
 
   const renderItem = ({ item: surveyItem }: { item: SurveyDetailsType }) => {
@@ -106,7 +124,7 @@ export default function HomeScreen() {
             .map((item, index) => (
               <HStack key={item.key}>
                 <Text size='sm' bold className='w-3/12'>{item.key} :</Text>
-                <Text size='sm' className='w-9/12'>{surveyItem?.[item.value as keyof SurveyDetailsType] || "NA"}</Text>
+                <Text size='sm' className='w-9/12'>{String(surveyItem?.[item.value as keyof SurveyDetailsType] || "NA")}</Text>
               </HStack>
             ))}
             <HStack>
@@ -115,9 +133,9 @@ export default function HomeScreen() {
               </HStack>
         </Box>
         <HStack className='w-full bg-gray-300 rounded-b-xl p-2'>
-          <TouchableOpacity  className='w-6/12'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleView(surveyItem,PressTypes.EDIT)} className='w-6/12'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
           <Divider orientation='vertical' className='bg-gray-500 '/>
-          <TouchableOpacity onPress={()=>handleView(surveyItem)} className='w-6/12'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleView(surveyItem,PressTypes.VIEW)} className='w-6/12'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
         </HStack>
       </Box>
     )
@@ -125,86 +143,29 @@ export default function HomeScreen() {
 
   const handleLoadMore = () => {
     console.log("LOAD MORE");
-    console.log("PAGE--->", page, userSurveys?.survey_forms?.last_page);
-    if (isUserSurveyFetching || isLoading || page >= userSurveys?.survey_forms?.last_page) return;
+    console.log("PAGE--->", page,"TOTAL PAGES---->", totalPages);
+    if (isFetching || isLoading || page > totalPages) return;
     setIsLoading(true);
+    fetchMoreSurvey(page+1);
     setPage((prevPage) => prevPage + 1);
   }
 
   return (
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    //   headerImage={
-    //     <Image
-    //       source={require('@/assets/images/partial-react-logo.png')}
-    //       style={styles.reactLogo}
-    //     />
-    //   }>
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Welcome!</ThemedText>  
-    //     <Text size='lg' className='text-yellow-500' bold>Hello</Text>
-    //     <HelloWave />
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-    //     <ThemedText>
-    //       Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-    //       Press{' '}
-    //       <ThemedText type="defaultSemiBold">
-    //         {Platform.select({
-    //           ios: 'cmd + d',
-    //           android: 'cmd + m',
-    //           web: 'F12'
-    //         })}
-    //       </ThemedText>{' '}
-    //       to open developer tools.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-    //     <ThemedText>
-    //       Tap the Explore tab to learn more about what's included in this starter app.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       When you're ready, run{' '}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    // </ParallaxScrollView>
     <SafeAreaView style={styles.container}>
       <Heading size='2xl' className='mb-2 relative'>Surveys</Heading>
       <Box className='absolute top-16 right-6'>
         <Pressable onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={20} color="red" />} size="md" /></Pressable>
       </Box>
-      {(isUserSurveyFetching && !isLoading) ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full'>
-        {/* <ScrollView contentContainerStyle={{paddingBottom:50}}>
-        {userSurveys?.survey_forms?.data.map((surveyItem:any, index:number) => (
-          <Box key={index} className='bg-gray-300 p-2 my-2 rounded-lg'>
-          {[{ key: "Id", value: "id" }, { key: "Owner Name", value: "nameOfOwner" },{key:"Mobile No.",value:"mobile"} ,{ key: "Address", value: "address_of_residence" }, { key: "City", value: "city" }, { key: "YOC", value: "year_of_construction" }, { key: "Created At", value: "created_at" }]
-            .map((item, index) => (
-              <HStack key={item.key}>
-                <Text size='sm' bold className='w-3/12'>{item.key} :</Text>
-                <Text size='sm' bold className='w-8/12'>{surveyItem?.[item.value] || "NA"}</Text>
-              </HStack>
-            ))}
-        </Box>
-          ))}
-        </ScrollView> */}
+      {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full'>
         <FlatList
           contentContainerStyle={{ paddingBottom: 50 }}
-          keyExtractor={(item, index) => item?.id?.toString()}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={1}
+          keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+          onEndReached={isFetching ? undefined : handleLoadMore}
+          onEndReachedThreshold={0.9}
           data={allSurveys}
           renderItem={renderItem}
           ListFooterComponent={() =>
-            isLoading ? <ActivityIndicator size="small" /> : null
+            isLoading ?  <ActivityIndicator size="small" /> : null
           }
         />
       </Box>}

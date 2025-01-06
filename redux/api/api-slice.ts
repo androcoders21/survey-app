@@ -11,7 +11,7 @@ getFromLocal("@token").then((data)=>{
 
 
 
-const baseUrl = 'https://survey-project.csvu.in/api/';
+export const baseUrl = 'https://survey-project.csvu.in/api/';
 export const apiSlice = createApi({
     baseQuery:fetchBaseQuery({
         baseUrl,

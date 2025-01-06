@@ -15,8 +15,8 @@ import { Image } from 'expo-image'
 const ownerDetails: { key: string, value: keyof SurveyDetailsType }[] = [{ key: "Owner Name", value: "nameOfOwner" }, { key: "Father Name", value: "fatherNameOfOwner" }, { key: "Mobile No.", value: "mobile" }, { key: "Email", value: "email" }];
 
 const locationDetails: { key: string, value: keyof SurveyDetailsType }[] = [
+    { key: "Property Type", value: "udf3" },
     { key: "Building/House/Plot", value: "building_house_plot" },
-    { key: "Ward", value: "ward_name" },
     { key: "Address of Residence", value: "address_of_residence" },
     { key: "Landmark", value: "landmark" },
     { key: "Area", value: "area" },
@@ -53,6 +53,7 @@ const imageDetails: { key: string, value: keyof SurveyDetailsType }[] = [
 
 const SurveyDetails = () => {
     const surveyDetails = useAppSelector(state => state.survey);
+    console.log("This One",surveyDetails);
     return (
         <View style={styles.container}>
             <Stack.Screen options={{
@@ -68,7 +69,7 @@ const SurveyDetails = () => {
                         <HStack key={value} className='py-1'>
                             <Text size='sm' bold className='w-3/12'>{key}</Text>
                             <Text className='w-1/12'><Divider className='bg-gray-500' orientation='vertical' /></Text>
-                            <Text size='sm' className='w-8/12'>{surveyDetails?.[value] || "NA"}</Text>
+                            <Text size='sm' className='w-8/12'>{typeof surveyDetails?.[value] === "string" ? surveyDetails?.[value] : "NA"}</Text>
                         </HStack>
                     ))}
                 </Box>
@@ -79,18 +80,23 @@ const SurveyDetails = () => {
                         <HStack key={value} className='py-1'>
                             <Text size='sm' bold className='w-5/12'>{key}</Text>
                             <Text className='w-1/12'><Divider className='bg-gray-500' orientation='vertical' /></Text>
-                            <Text size='sm' className='w-6/12'>{surveyDetails?.[value] || "NA"}</Text>
+                            <Text size='sm' className='w-6/12'>{typeof surveyDetails?.[value] === "string" ? surveyDetails?.[value] : "NA"}</Text>
                         </HStack>
                     ))}
                 </Box>
 
                 <Box className='border border-slate-400 relative my-4 pt-4 rounded-xl bg-white pb-2 px-2'>
                     <Heading className='absolute bg-white -top-4 left-2 px-1 rounded-lg border border-slate-400'>Location Details</Heading>
+                    <HStack className='py-1'>
+                            <Text size='sm' bold className='w-4/12'>Ward</Text>
+                            <Text className='w-1/12'><Divider className='bg-gray-500' orientation='vertical' /></Text>
+                            <Text size='sm' className='w-7/12'>{surveyDetails.ward?.name || "NA"}</Text>
+                        </HStack>
                     {locationDetails.map(({ key, value }) => (
                         <HStack key={value} className='py-1'>
                             <Text size='sm' bold className='w-4/12'>{key}</Text>
                             <Text className='w-1/12'><Divider className='bg-gray-500' orientation='vertical' /></Text>
-                            <Text size='sm' className='w-7/12'>{surveyDetails?.[value] || "NA"}</Text>
+                            <Text size='sm' className='w-7/12'>{typeof surveyDetails?.[value] === "string" ? surveyDetails?.[value] : "NA"}</Text>
                         </HStack>
                     ))}
                 </Box>

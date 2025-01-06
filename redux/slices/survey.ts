@@ -44,6 +44,14 @@ const initialState: SurveyDetailsType = {
     status: 0, // Default status
     created_at: "", // Default empty string for date
     updated_at: "", // Default empty string for date
+    ward: {
+        created_at: null,
+        ditrict: "",
+        id: 0,
+        name: "",
+        updated_at: null,
+        ward_number: ""
+    }
   };
 
 const surveySlice = createSlice({

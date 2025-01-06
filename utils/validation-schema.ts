@@ -56,6 +56,7 @@ export const surveySchema = z.object({
     ward_name: z.string(),
     udf1:z.string().optional(),
     udf2:z.string().optional(),
+    udf3:z.string(),
 });
 
 export const surveyStepTwoSchema = z.object({

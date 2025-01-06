@@ -60,5 +60,26 @@ export interface SurveyDetailsType {
     status: number;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
+    ward: WardType;
   }
+
+export enum PressTypes {
+    EDIT = "EDIT",
+    VIEW = "VIEW"
+}
+  
+export type UserType = {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    mobile: string;
+    address: string;
+    profile: string;
+    aadhar: string;
+    pan: string;
+    roll_id: number;
+    created_at: string; // ISO date string
+    updated_at: string; // ISO date string
+  };
   
