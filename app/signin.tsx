@@ -25,7 +25,7 @@ const Signin = () => {
     const [showPassword, setShowPassword] = React.useState(false);
     const handleState = () => setShowPassword(!showPassword);
     const [loginUser, { isLoading }] = useLoginUserMutation();
-    const [getUserDetails,{isSuccess}] = useGetUserDetailsMutation();
+    const [getUserDetails, { isSuccess }] = useGetUserDetailsMutation();
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const dispatch = useAppDispatch()
     const { formState: { errors }, control, handleSubmit } = useForm<LoginType>({
@@ -41,20 +41,20 @@ const Signin = () => {
             storeToLocal('@token', response?.access_token);
             dispatch(setUserToken(response?.access_token));
             const user = await getUserDetails(undefined).unwrap();
-            console.log("User Details",user);
-            if(user?.id){
+            console.log("User Details", user);
+            if (user?.id) {
                 dispatch(setUserId(user?.id?.toString()));
-                storeToLocal('@userId',user?.id?.toString());
-            }else{
-                ToastAndroid.show("User Id not found",ToastAndroid.SHORT);
+                storeToLocal('@userId', user?.id?.toString());
+            } else {
+                ToastAndroid.show("User Id not found", ToastAndroid.SHORT);
             }
             setIsSubmitting(false);
-            ToastAndroid.show("Successfully logged in",ToastAndroid.LONG);
+            ToastAndroid.show("Successfully logged in", ToastAndroid.LONG);
             router.replace('/(tabs)')
         } catch (error) {
             console.log(error);
             setIsSubmitting(false);
-            ToastAndroid.show("Invalid Credentials",ToastAndroid.SHORT);
+            ToastAndroid.show("Invalid Credentials", ToastAndroid.SHORT);
         }
     }
 
@@ -67,9 +67,10 @@ const Signin = () => {
                     }}
                 />
                 <Box className="">
-                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : undefined} style={styles.container} >
+                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : undefined} >
                         <VStack space="lg">
-                            <Heading size="3xl" className="text-primary-500 pb-4 text-center">Sign In</Heading>
+                    <Heading className='text-center mt-20 py-10' size='3xl'>SDV Survey</Heading>
+                            <Heading size="3xl" className="text-primary-500 py-4 text-center">Sign In</Heading>
                             <VStack>
                                 <Text size="sm" className="mb-1" bold>Email *</Text>
                                 <Controller
@@ -126,7 +127,6 @@ const Signin = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
     }
 })

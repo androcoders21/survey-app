@@ -51,7 +51,8 @@ const initialState: SurveyDetailsType = {
         name: "",
         updated_at: null,
         ward_number: ""
-    }
+    },
+    floors: [],
   };
 
 const surveySlice = createSlice({
@@ -61,7 +62,8 @@ const surveySlice = createSlice({
         setSlectedSurvey:(state,action:PayloadAction<SurveyDetailsType>)=>{
             return {
                 ...state,
-                ...action.payload
+                ...action.payload,
+                floors: action.payload.floors || []
             }
         }
     }

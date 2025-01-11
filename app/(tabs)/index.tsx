@@ -29,10 +29,10 @@ export default function HomeScreen() {
   const userToken = useAppSelector(state => state.user.token)
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [isFetching,setIsFetching] = React.useState(true);
+  const [isFetching, setIsFetching] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [page, setPage] = React.useState(1);
-  const [totalPages,setTotalPages] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(1);
   const { data: tokenData, refetch: refetchRefereshToken, error: refereshError, isFetching: isTokenFetching } = useRefereshTokenQuery(undefined, { refetchOnFocus: true });
   const [allSurveys, setAllSurveys] = React.useState<any[]>([]);
 
@@ -46,45 +46,49 @@ export default function HomeScreen() {
 
   const fetchUserSurvey = async () => {
     setIsFetching(true);
-    setAllSurveys(()=>([]));
+    setAllSurveys(() => ([]));
     try {
-      const response:any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${1}`,{headers:{
-        "Authorization":`Bearer ${userToken}`,
-        "Accept": "application/json"
-      }});
-      setAllSurveys((prevData)=>([...prevData,...response?.data?.survey_forms?.data]));
+      const response: any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${1}`, {
+        headers: {
+          "Authorization": `Bearer ${userToken}`,
+          "Accept": "application/json"
+        }
+      });
+      setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
       setTotalPages(response?.data?.survey_forms?.last_page || 1);
       setPage(1);
-    } catch (error:any) {
-      if(error?.response?.status === 401){
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
         handleLogout()
         ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-      }else{
+      } else {
         ToastAndroid.show(error?.response?.data?.message.toString() || "Some error occured", ToastAndroid.SHORT);
       }
-    }finally{
+    } finally {
       setIsFetching(false)
     }
   }
 
-  const fetchMoreSurvey = async (pageNo:number) => {
+  const fetchMoreSurvey = async (pageNo: number) => {
     try {
-      const response:any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${pageNo}`,{headers:{
-        "Authorization":`Bearer ${userToken}`,
-        "Accept": "application/json"
-      }});
-      setAllSurveys((prevData)=>([...prevData,...response?.data?.survey_forms?.data]));
-    } catch (error:any) {
-      if(error?.response?.status === 401){
+      const response: any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${pageNo}`, {
+        headers: {
+          "Authorization": `Bearer ${userToken}`,
+          "Accept": "application/json"
+        }
+      });
+      setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
         handleLogout()
         ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.SHORT);
-      }else{
+      } else {
         ToastAndroid.show(error?.response?.data?.message.toString() || "Some error occured", ToastAndroid.SHORT);
       }
-    } finally{
+    } finally {
       setIsLoading(false);
     }
-  } 
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -106,13 +110,13 @@ export default function HomeScreen() {
     router.replace('/signin');
   }
 
-  const handleView = (item: SurveyDetailsType,type: PressTypes) => {
+  const handleView = (item: SurveyDetailsType, type: PressTypes) => {
     console.log("SELECTED SURVEY", item.ward_name);
     dispatch(setSlectedSurvey(item));
-    if(type === PressTypes.EDIT){
+    if (type === PressTypes.EDIT) {
       router.navigate("/form/edit");
-    }else{
-    router.navigate("/details/survey-details");
+    } else {
+      router.navigate("/details/survey-details");
     }
   }
 
@@ -120,22 +124,28 @@ export default function HomeScreen() {
     return (
       <Box className='my-2 border border-slate-400 bg-gray-300 rounded-xl'>
         <Box className=' bg-white border-b border-slate-400 p-2 rounded-xl'>
-          {[{key:"Id",value:"id"},{ key: "Owner Name", value: "nameOfOwner" }, { key: "Mobile No.", value: "mobile" }, { key: "Address", value: "address_of_residence" }, { key: "City", value: "city" }, { key: "YOC", value: "year_of_construction" }]
+          <HStack>
+            <Text size='sm' bold className='w-3/12'>Id :</Text>
+            <Text size='sm' className='w-3/12'>{surveyItem.id}</Text>
+            <Text size='sm' bold className='w-3/12'>Parcel Id :</Text>
+            <Text size='sm' className='w-3/12'>{surveyItem?.udf3 || "NA"}</Text>
+          </HStack>
+          {[{ key: "Owner Name", value: "nameOfOwner" }, { key: "Mobile No.", value: "mobile" }, { key: "Address", value: "address_of_residence" }, { key: "City", value: "city" }, { key: "YOC", value: "year_of_construction" }]
             .map((item, index) => (
               <HStack key={item.key}>
                 <Text size='sm' bold className='w-3/12'>{item.key} :</Text>
                 <Text size='sm' className='w-9/12'>{String(surveyItem?.[item.value as keyof SurveyDetailsType] || "NA")}</Text>
               </HStack>
             ))}
-            <HStack>
-                <Text size='sm' bold className='w-3/12'>Created at :</Text>
-                <Text size='sm' className='w-9/12'>{surveyItem?.created_at ? formatDate(surveyItem.created_at) : "NA"}</Text>
-              </HStack>
+          <HStack>
+            <Text size='sm' bold className='w-3/12'>Created at :</Text>
+            <Text size='sm' className='w-9/12'>{surveyItem?.created_at ? formatDate(surveyItem.created_at) : "NA"}</Text>
+          </HStack>
         </Box>
-        <HStack className='w-full bg-gray-300 rounded-b-xl p-2'>
-          <TouchableOpacity onPress={()=>handleView(surveyItem,PressTypes.EDIT)} className='w-6/12'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
-          <Divider orientation='vertical' className='bg-gray-500 '/>
-          <TouchableOpacity onPress={()=>handleView(surveyItem,PressTypes.VIEW)} className='w-6/12'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
+        <HStack className='w-full bg-gray-300 rounded-b-xl px-2'>
+          <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.EDIT)} className='w-6/12 py-2'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
+          <Divider orientation='vertical' className='bg-gray-500 ' />
+          <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.VIEW)} className='w-6/12 py-2'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
         </HStack>
       </Box>
     )
@@ -143,20 +153,22 @@ export default function HomeScreen() {
 
   const handleLoadMore = () => {
     console.log("LOAD MORE");
-    console.log("PAGE--->", page,"TOTAL PAGES---->", totalPages);
+    console.log("PAGE--->", page, "TOTAL PAGES---->", totalPages);
     if (isFetching || isLoading || page > totalPages) return;
     setIsLoading(true);
-    fetchMoreSurvey(page+1);
+    fetchMoreSurvey(page + 1);
     setPage((prevPage) => prevPage + 1);
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Heading size='2xl' className='mb-2 relative'>Surveys</Heading>
-      <Box className='absolute top-16 right-6'>
-        <Pressable onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={20} color="red" />} size="md" /></Pressable>
+      <Box className='bg-white relative w-full py-3'>
+        <Heading size='2xl' className='text-center'>Surveys</Heading>
+        <Box className='absolute top-5 right-5'>
+          <Pressable onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={20} color="red" />} size="md" /></Pressable>
+        </Box>
       </Box>
-      {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full'>
+      {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full py-2 px-3'>
         <FlatList
           contentContainerStyle={{ paddingBottom: 50 }}
           keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
@@ -165,7 +177,7 @@ export default function HomeScreen() {
           data={allSurveys}
           renderItem={renderItem}
           ListFooterComponent={() =>
-            isLoading ?  <ActivityIndicator size="small" /> : null
+            isLoading ? <ActivityIndicator size="small" /> : null
           }
         />
       </Box>}
@@ -177,7 +189,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingBottom: 10,
   }
 });
