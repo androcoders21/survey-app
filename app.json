@@ -17,6 +17,11 @@
         "foregroundImage": "./assets/images/app-logo.png",
         "backgroundColor": "#ffffff"
       },
+      "config":{
+        "googleMaps":{
+          "apiKey": "AIzaSyDgFcTmfanz9rxx1l0Hl9-cMTNJF8jpgQE"
+        }
+      },
       "package": "com.mohdsaqlain.surveyapp",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",

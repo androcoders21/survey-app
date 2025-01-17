@@ -64,7 +64,7 @@ if(isFetching){
 }else if(isLoggedIn && !isFetching){
     return(
         <SafeAreaView style={styles.container}>
-            <Redirect href='/(tabs)' />
+            <Redirect href='/(tabs)/main' />
         </SafeAreaView>
     )
 }

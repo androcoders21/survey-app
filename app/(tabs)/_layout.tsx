@@ -12,7 +12,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  
   return (
     <Tabs
       screenOptions={{
@@ -28,8 +28,8 @@ export default function TabLayout() {
           default: {},
         }),
       }}>
-      <Tabs.Screen
-        name="index"
+        <Tabs.Screen
+        name="main"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
@@ -40,6 +40,13 @@ export default function TabLayout() {
         options={{
           title: 'Add Survey',
           tabBarIcon: ({ color }) => <MaterialIcons name="add-home" size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Surveys',
+          tabBarIcon: ({ color }) => <MaterialIcons name="cloud-done" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
