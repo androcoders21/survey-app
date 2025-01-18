@@ -32,6 +32,7 @@ interface StepOneProps {
 const StepOne = ({ control, errors, setValue }: StepOneProps) => {
     const { isFetching, data: wardData } = useFetchWardQuery();
     const isSlum = useWatch({ control, name: "isSlum" });
+    console.log(wardData);
     return (
         <Box className='pt-2'>
             <VStack space='xs' className='mb-3'>

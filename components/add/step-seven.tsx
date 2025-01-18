@@ -29,7 +29,14 @@ interface StepSevenProps {
 
 const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
     const currentLocation = useAppSelector((state) => state.map);
+    const [latitude,longitude] = useWatch({ control, name: ['latitude','longitude'] });
     console.log(currentLocation);
+
+    const handleMarker = (coordinate: any) => {
+        console.log(coordinate);
+        setValue("latitude",coordinate?.latitude);
+        setValue("longitude",coordinate?.longitude);
+    }
 
     return (
         <Box>
@@ -41,7 +48,7 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
 
             <Heading className='pb-3 pt-1'>Property Location:</Heading>
             <MapView
-                onMarkerDragEnd={(e) => {console.log(e.nativeEvent.coordinate)}}
+                onMarkerDragEnd={(e) => handleMarker(e.nativeEvent.coordinate)}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
                 onMapLoaded={() => console.log('Map Loaded')}
@@ -55,7 +62,8 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
             >
-                <Marker draggable coordinate={{latitude:26.4701633,longitude:80.3314867}}/>
+                <Marker draggable coordinate={{latitude:latitude ? Number(latitude) : currentLocation.latitude,
+                    longitude:longitude ? Number(longitude) : currentLocation.longitude}}/>
             </MapView>
 
             <Heading className='pb-3 pt-1'>Upload Supporting Documents:</Heading>

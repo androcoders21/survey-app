@@ -8,7 +8,7 @@ import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useCreateSurveyMutation } from '@/redux/api/end-points/survey';
+import { useCreatePropertyMutation, useCreateSurveyMutation } from '@/redux/api/end-points/survey';
 import { useAppDispatch, useAppSelector } from '@/utils/hooks';
 import { router, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
@@ -32,7 +32,7 @@ interface FormProps {
 }
 
 const Form = ({ currentStep, setCurrentStep }: FormProps) => {
-  const [createSurvey, { isLoading }] = useCreateSurveyMutation();
+  const [createSurvey, { isLoading }] = useCreatePropertyMutation();
   const { isFetching, data: wardData } = useFetchWardQuery();
   const dispatch = useAppDispatch();
 
@@ -154,22 +154,22 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       return;
     }
     console.log("Last Step", data);
-
-    // try {
-    //   const response = await createSurvey({ ...data, user_id: userId }).unwrap();
-    //   ToastAndroid.show("Survey created successfully", ToastAndroid.SHORT);
-    //   router.navigate({ pathname: '/form/step-second', params: { formId: response?.survey_form?.id } });
-    //   reset();
-    // } catch (error: any) {
-    //   if (error?.data?.status === 401) {
-    //     handleLogout();
-    //     ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-    //   } else if (error && typeof error?.data?.error === "string") {
-    //     ToastAndroid.show(error?.data?.error, ToastAndroid.SHORT);
-    //   } else {
-    //     ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
-    //   }
-    // }
+    try {
+      const response = await createSurvey({ ...data, user_id: userId }).unwrap();
+      ToastAndroid.show("Survey created successfully", ToastAndroid.SHORT);
+      // router.navigate({ pathname: '/form/step-second', params: { formId: response?.survey_form?.id } });
+      reset();
+    } catch (error: any) {
+      console.log(error);
+      if (error?.data?.status === 401) {
+        handleLogout();
+        ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
+      } else if (error && typeof error?.data?.error === "string") {
+        ToastAndroid.show(error?.data?.error, ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
+      }
+    }
   };
 
   const handleLogout = () => {

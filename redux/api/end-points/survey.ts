@@ -34,7 +34,7 @@ const survey = apiSlice.injectEndpoints({
         }),
         createProperty:builder.mutation<any,any>({
             query:(data)=>({
-                url:'property',
+                url:'properties',
                 method:'POST',
                 body:data,
             }),
