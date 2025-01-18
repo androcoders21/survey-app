@@ -30,9 +30,8 @@ interface StepOneProps {
 }
 
 const StepOne = ({ control, errors, setValue }: StepOneProps) => {
-    const { isFetching, data: wardData } = useFetchWardQuery();
+    const { isFetching, data: wardData,error } = useFetchWardQuery();
     const isSlum = useWatch({ control, name: "isSlum" });
-    console.log(wardData);
     return (
         <Box className='pt-2'>
             <VStack space='xs' className='mb-3'>
@@ -60,7 +59,7 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                     name='wardNo'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select isInvalid={!!errors.wardNo} onValueChange={(data) => { setValue("wardNo", data); console.log(data) }}>
+                        <Select isInvalid={!!errors.wardNo} defaultValue={value ? wardData.find((item:WardType)=>item.id.toString() === value)?.name : ""} onValueChange={(data) => { setValue("wardNo", data); console.log(data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select ward" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -105,7 +104,7 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                 </VStack>
             ))}
 
-            <RadioGroup className='mb-2' onChange={(value) => setValue("isSlum",value)}>
+            <RadioGroup value={isSlum} className='mb-2' onChange={(value) => setValue("isSlum",value)}>
                 <HStack space="2xl">
                     <Text className='w-3/12' size='sm' bold>Slum</Text>
                     <Radio className='w-3/12' value="yes">

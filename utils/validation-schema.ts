@@ -134,7 +134,7 @@ export const surveyStepThreeSchema = z.object({
 });
 
 export const step1Schema = z.object({
-    ulbNameCode: z.string().min(1, "ULB's Name/Code is required"),
+    ulbNameCode: z.string().min(3, { message: "Minimum 3 characters are required" }),
     wardNo: z.string().min(1, "Ward No is required"),
     nagarpalikaId: z.string().optional(),
     parcelNo: z.string().optional(),
@@ -148,13 +148,14 @@ export const step1Schema = z.object({
 });
 
 export const step2Schema = z.object({
-    respondentName: z.string().min(1, "Name of the Respondent is required"),
-    respondentRelationship: z.string().min(1, "Relationship with Owner is required"),
-    ownerAadhaarNumber: z.string().optional(),
+    respondentName: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    respondentRelationship: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    ownerAadhaarNumber: z.string().optional()
+        .refine((value) => value === undefined || value === "" || /^\d{12}$/.test(value), { message: "Aadhaar number must be 12 digits" }),
     aadhaarPhoto: z.string().optional(),
     ownerDetails: z.array(z.object({
-        name: z.string().min(1, "Name is required"),
-        fatherName: z.string().min(1, "Father's Name is required"),
+        name: z.string().min(3, { message: "Minimum 3 characters are required" }),
+        fatherName: z.string().min(3, { message: "Minimum 3 characters are required" }),
         mobile: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
         landline: z.string().optional(),
         email: z.string()
@@ -166,19 +167,19 @@ export const step2Schema = z.object({
 });
 
 export const step3Schema = z.object({
-    houseNo: z.string().min(1, "House No is required"),
-    streetNoName: z.string().min(1, "Street No/Name is required"),
-    locality: z.string().min(1, "Locality is required"),
-    colony: z.string().min(1, "Colony is required"),
+    houseNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    streetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    locality: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    colony: z.string().min(3, { message: "Minimum 3 characters are required" }),
     colonyOther: z.string().optional(),
-    city: z.string().min(1, "City is required"),
+    city: z.string().min(3, { message: "Minimum 3 characters are required" }),
     pincode: z.string().min(6, "Pincode must be 6 digits").max(6, "Pincode must be 6 digits"),
     isSameAsProperty: z.boolean().optional(),
-    presentHouseNo: z.string().min(1, "Present House No is required"),
-    presentStreetNoName: z.string().min(1, "Present Street No/Name is required"),
-    presentLocality: z.string().min(1, "Present Locality is required"),
-    presentColony: z.string().min(1, "Present Colony is required"),
-    presentCity: z.string().min(1, "Present City is required"),
+    presentHouseNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentStreetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentLocality: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentColony: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentCity: z.string().min(3, { message: "Minimum 3 characters are required" }),
     presentPincode: z.string().min(6, "Present Pincode must be 6 digits").max(6, "Present Pincode must be 6 digits"),
 });
 
@@ -196,7 +197,81 @@ export const step4Schema = z.object({
     isExemptionApplicable: z.string().optional(),
     exemptionType: z.string().optional(),
     exemptionTypeOther: z.string().optional(),
-});
+}).refine(
+    (data) => {
+        if (data.propertyOwnership === "Other" && !data.propertyOwnershipOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Property Ownership Other is required when 'Other' is selected",
+        path: ["propertyOwnershipOther"], // Path to the field that will show the error
+    }
+).refine(
+    (data) => {
+        // If situation is "Other", situationOther is required
+        if (data.situation === "Other" && !data.situationOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Situation Other is required when 'Other' is selected",
+        path: ["situationOther"],
+    }
+)
+.refine(
+    (data) => {
+        // If propertyUse is "Other", propertyOther is required
+        if (data.propertyUse === "Other" && !data.propertyOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Property Other is required when 'Other' is selected",
+        path: ["propertyOther"],
+    }
+)
+.refine(
+    (data) => {
+        // If commercial is "Other", commercialOther is required
+        if (data.commercial === "NA" && !data.commercialOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Commercial Other is required when 'Other' is selected",
+        path: ["commercialOther"],
+    }
+).refine(
+    (data) => {
+        // If exemptionType is "Other", exemptionTypeOther is required
+        if (data.isExemptionApplicable === "yes" && !data.exemptionType) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Exemption Type is required when 'Yes' is selected",
+        path: ["exemptionType"],
+    }
+)
+.refine(
+    (data) => {
+        // If exemptionType is "Other", exemptionTypeOther is required
+        if (data.isExemptionApplicable === "yes" && data.exemptionType === "Other" && !data.exemptionTypeOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Exemption Type Other is required when 'Other' is selected",
+        path: ["exemptionTypeOther"],
+    }
+);
 
 export const step5Schema = z.object({
     plotAreaSqFt: z.string().min(1, "Plot Area (Square Feet) is required"),
@@ -213,7 +288,20 @@ export const step5Schema = z.object({
         usageFactor: z.string().min(1, "All Room is required"),
         constructionType: z.string().min(1, "All Balcony is required"),
     })).min(1, "At least one floor is required"),
-});
+}).refine(
+    (data) => {
+        // Convert string values to numbers for comparison
+        const plotAreaSqFt = parseFloat(data.plotAreaSqFt);
+        const plinthAreaSqFt = parseFloat(data.plinthAreaSqFt);
+
+        // Ensure plotAreaSqMeter is greater than plinthAreaSqMeter
+        return plotAreaSqFt > plinthAreaSqFt;
+    },
+    {
+        message: "Plot Area must be greater than Plinth Area",
+        path: ["plotAreaSqFt"], // Path to the field that will show the error
+    }
+);
 
 
 export const step6Schema = z.object({
@@ -252,8 +340,8 @@ export const floorDetailsSchema = z.object({
 });
 
 export const ownerDetailsSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    fatherName: z.string().min(1, "Father's Name is required"),
+    name: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    fatherName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     mobile: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
     landline: z.string().optional(),
     email: z.string()

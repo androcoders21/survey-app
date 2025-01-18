@@ -146,24 +146,94 @@ export type FloorTypeType = {
 }
 
 export interface FloorDataType {
-    id: number; 
+    id: number;
     floor_type: FloorTypeType;
     property_type: PropertyType;
-    property_occupied_by: number; 
-    covered_area: string; 
-    open_area: string; 
-    other_area: string; 
-    all_room: string; 
-    all_balcony: string; 
-    all_garages: string; 
-    properties_id: number; 
-    created_at: string; 
-    updated_at: string; 
+    property_occupied_by: number;
+    covered_area: string;
+    open_area: string;
+    other_area: string;
+    all_room: string;
+    all_balcony: string;
+    all_garages: string;
+    properties_id: number;
+    created_at: string;
+    updated_at: string;
     occupied_by: OccupiedType;
 };
 
 export interface MapType {
     latitude: number;
     longitude: number;
+}
+
+export interface RateZone {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Adjust the type of elements in the array if you know their structure.
+    status: string;
+    updated_at: string;
+};
+
+export interface PropertyOwnership {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Adjust the type if you know the structure of the items in this array.
+    status: string;
+    updated_at: string;
+};
+
+export interface PropertySituation {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Adjust the type if you know the structure of the items in this array.
+    status: string;
+    updated_at: string;
+};
+
+export interface PropertyUses {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Replace 'any' with the specific type if the array has a defined structure.
+    status: string;
+    updated_at: string;
+}
+
+export interface CommercialUses {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Replace 'any' with the specific type if the array has a defined structure.
+    status: string;
+    updated_at: string;
+}
+
+export interface YearOfConstruction {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Replace 'any' with the specific type if the array has a defined structure.
+    status: string;
+    updated_at: string;
+}
+
+export interface ExemptionType {
+    created_at: string;
+    description: string;
+    id: number;
+    name: string;
+    proparty: any[]; // Replace 'any' with the specific type if the array has a defined structure.
+    status: string;
+    updated_at: string;
 }
 
