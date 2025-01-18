@@ -100,7 +100,7 @@ const Main = () => {
                     <Heading className='pb-1'>New Survey</Heading>
                     <Text size='sm'>Create New Property Survey</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.navigate('/form/add')} activeOpacity={0.7} className='border w-full bg-gray-200 border-black-300 mt-4 py-1.5 px-4 rounded-lg'>
+                <TouchableOpacity onPress={() => router.navigate('/draft/draft')} activeOpacity={0.7} className='border w-full bg-gray-200 border-black-300 mt-4 py-1.5 px-4 rounded-lg'>
                     <Heading className='pb-1'>Drafts Survey</Heading>
                     <Text size='sm'>Update edit local survey data</Text>
                 </TouchableOpacity>
