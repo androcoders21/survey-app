@@ -31,8 +31,15 @@ const survey = apiSlice.injectEndpoints({
             query:({userId,page})=>({
                 url:`survey-forms?user_id=${userId}&per_page=10&page=${page}`,
             }),
-        })
+        }),
+        createProperty:builder.mutation<any,any>({
+            query:(data)=>({
+                url:'property',
+                method:'POST',
+                body:data,
+            }),
+        }),
     }),
 });
 
-export const {useFetchSurveysQuery,useCreateSurveyMutation,useFetchUserServeyQuery,useUpdateSurveyMutation} = survey;
+export const {useFetchSurveysQuery,useCreateSurveyMutation,useFetchUserServeyQuery,useUpdateSurveyMutation,useCreatePropertyMutation} = survey;

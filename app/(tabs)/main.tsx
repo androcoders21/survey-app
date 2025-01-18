@@ -1,6 +1,6 @@
 import { Icon } from '@/components/ui/icon'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Stack, useFocusEffect } from 'expo-router'
+import { router, Stack, useFocusEffect } from 'expo-router'
 import React, { useCallback, useEffect } from 'react'
 import { Pressable, StyleSheet, SafeAreaView, ToastAndroid, PermissionsAndroid, TouchableOpacity } from 'react-native'
 import MapView, { LocalTile, MapMarker, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
@@ -8,8 +8,15 @@ import * as Location from 'expo-location';
 import { Box } from '@/components/ui/box'
 import { Heading } from '@/components/ui/heading'
 import { Text } from '@/components/ui/text'
+import { clearLocal } from '@/utils/helper'
+import { useAppDispatch } from '@/utils/hooks'
+import { setUserId, setUserToken } from '@/redux/slices/user'
+import { apiSlice } from '@/redux/api/api-slice'
+import { ButtonSpinner } from '@/components/ui/button'
+import { setMap } from '@/redux/slices/map'
 
 const Main = () => {
+    const dispatch = useAppDispatch();
     const [currentLocation, setCurrentLocation] = React.useState<Location.LocationObjectCoords>({
         latitude: 0,
         longitude: 0,
@@ -45,9 +52,10 @@ const Main = () => {
             mapRef.current.animateToRegion({
                 latitude: currentLocation.latitude,
                 longitude: currentLocation.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
+                latitudeDelta: 0.0012,
+                longitudeDelta: 0.0011,
             }, 1000);
+            dispatch(setMap({ latitude: currentLocation.latitude, longitude: currentLocation.longitude }));
         }
         if (markerRef.current) {
             markerRef.current.setCoordinates({
@@ -56,27 +64,46 @@ const Main = () => {
             })
         }
     }, [currentLocation])
+
+    const handleLogout = () => {
+        clearLocal();
+        dispatch(setUserToken(""));
+        dispatch(setUserId(""));
+        dispatch(apiSlice.util.resetApiState());
+        router.replace('/signin');
+    }
+
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ headerShown: true, headerTitle: "SDV Survey", headerTitleStyle: { fontWeight: '700' }, headerRight: () => <Pressable className='mr-4' onPress={() => console.log("Logout")}><Icon as={() => <MaterialIcons name="logout" size={25} color="red" />} size="md" /></Pressable> }} />
-            <MapView
+            <Stack.Screen options={{ headerShown: true, headerTitle: "SDV Survey", headerTitleStyle: { fontWeight: '700' }, headerRight: () => <Pressable className='mr-4' onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={25} color="red" />} size="md" /></Pressable> }} />
+            {currentLocation.latitude === 0 ? <Box style={styles.map} className='justify-center items-center'>
+                <Text className='text-center px-3'>Attempting to fetch your location. Please turn on location services if they are disabled.</Text>
+                <ButtonSpinner size={40}/>
+            </Box> : <MapView
                 ref={mapRef}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
+                mapType='satellite'
+                initialRegion={{
+                    latitude: currentLocation.latitude,
+                    longitude: currentLocation.longitude,
+                    latitudeDelta: 0.0007,
+                    longitudeDelta: 0.0007,
+                }}
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
             >
-                <Marker coordinate={{ latitude: currentLocation.latitude, longitude: currentLocation.longitude }} ref={markerRef} title="Sample Marker" />
             </MapView>
-            <Box className='w-full pt-6 border-t border-slate-300' style={styles.bottomContainer}>
-                <TouchableOpacity activeOpacity={0.7} className='border w-80 bg-gray-200 border-black-300 mt-4 py-1.5 px-4 rounded-lg'>
+            }
+            <Box className='w-full pt-6 border-t border-slate-300 px-6' style={styles.bottomContainer}>
+                <TouchableOpacity onPress={() => router.navigate('/form/add')} activeOpacity={0.7} className='border w-full bg-gray-200 border-black-300 mt-4 py-1.5 px-4 rounded-lg'>
                     <Heading className='pb-1'>New Survey</Heading>
                     <Text size='sm'>Create New Property Survey</Text>
                 </TouchableOpacity>
-                {/* <Box className='border w-80 bg-gray-200 border-black-300 mt-6 py-1.5 px-4 rounded-lg'>
-                    <Heading className='pb-1'>New Survey</Heading>
-                    <Text size='sm'>Create New Property Survey</Text>
-                </Box> */}
+                <TouchableOpacity onPress={() => router.navigate('/form/add')} activeOpacity={0.7} className='border w-full bg-gray-200 border-black-300 mt-4 py-1.5 px-4 rounded-lg'>
+                    <Heading className='pb-1'>Drafts Survey</Heading>
+                    <Text size='sm'>Update edit local survey data</Text>
+                </TouchableOpacity>
             </Box>
 
 

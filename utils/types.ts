@@ -162,3 +162,8 @@ export interface FloorDataType {
     occupied_by: OccupiedType;
 };
 
+export interface MapType {
+    latitude: number;
+    longitude: number;
+}
+

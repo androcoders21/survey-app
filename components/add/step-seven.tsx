@@ -11,6 +11,10 @@ import { CombinedSurveyType, Step6Type } from '@/utils/validation-schema';
 import { Control, Controller, FieldErrors, UseFormSetValue, useWatch } from 'react-hook-form';
 import CapturePhoto from '@/components/capture-photo';
 import { Image } from 'expo-image';
+import { Textarea, TextareaInput } from '../ui/textarea';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useAppSelector } from '@/utils/hooks';
+import { StyleSheet } from 'react-native';
 
 const formFields = {
     totalWaterConnection: "No. of Connection",
@@ -24,16 +28,35 @@ interface StepSevenProps {
 }
 
 const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
+    const currentLocation = useAppSelector((state) => state.map);
+    console.log(currentLocation);
 
     return (
         <Box>
             <Heading className='pb-3'>Property Photo:</Heading>
             <VStack space='lg' className='mb-3'>
-                <CapturePhoto label='Capture first photo'/>
-                <CapturePhoto label='Capture second photo'/>
+                <CapturePhoto handleImage={(value)=>setValue("propertyFirstImage",value)} label='Capture first photo' />
+                <CapturePhoto handleImage={(value)=>setValue("propertySecondImage",value)} label='Capture second photo' />
             </VStack>
 
             <Heading className='pb-3 pt-1'>Property Location:</Heading>
+            <MapView
+                onMarkerDragEnd={(e) => {console.log(e.nativeEvent.coordinate)}}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                onMapLoaded={() => console.log('Map Loaded')}
+                mapType='satellite'
+                initialRegion={{
+                    latitude: currentLocation.latitude,
+                    longitude: currentLocation.longitude,
+                    latitudeDelta: 0.0007,
+                    longitudeDelta: 0.0007,
+                }}
+                style={styles.map}
+                provider={PROVIDER_GOOGLE}
+            >
+                <Marker draggable coordinate={{latitude:26.4701633,longitude:80.3314867}}/>
+            </MapView>
 
             <Heading className='pb-3 pt-1'>Upload Supporting Documents:</Heading>
             <Heading className='pb-3 pt-1'>Remark</Heading>
@@ -41,25 +64,25 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
                 name='remark'
                 control={control}
                 render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.remark} isReadOnly={false}>
-                        <InputField
-                            className="text-sm"
+                    <Textarea className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.remark} isReadOnly={false}>
+                        <TextareaInput
+                            className="text-sm align-top"
                             onChange={(e) => onChange(e.nativeEvent.text)}
                             value={value as string}
                             placeholder={`Enter Remark`}
-                            multiline={true}
-                            numberOfLines={4}
                         />
-                    </Input>
+                    </Textarea>
                 )}
             />
-            <Box>
-                <Image style={{flex: 1,
-        height: 100,
-        marginTop: 10,}} source='file:///data/user/0/host.exp.exponent/files/cd485715-d100-4888-856a-b06c3ca6f6d3.jpeg'/>
-            </Box>
         </Box>
     )
 }
+
+const styles = StyleSheet.create({
+    map: {
+        width: '100%',
+        height: 220,
+    },
+});
 
 export default StepSeven

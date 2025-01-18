@@ -59,6 +59,90 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
 
   const { control, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<CombinedSurveyType>({
     // resolver: hadelValidation(currentStep),
+    defaultValues: {
+      ulbNameCode: "",
+      wardNo: "",
+      isSlum: "",
+      nagarpalikaId: "",
+      parcelNo: "",
+      propertyNo: "",
+      electricityId: "",
+      khasraNo: "",
+      registryNo: "",
+      constructedDate: "",
+      slumId: "",
+      respondentName: "",
+      respondentRelationship: "",
+      ownerDetails: [
+          {
+              mobile: "",
+              name: "",
+              fatherName: "",
+              email: "",
+              landline: "",
+          },
+      ],
+      ownerAadhaarNumber: "",
+      aadhaarPhoto: "",
+      city: "",
+      pincode: "",
+      houseNo: "",
+      streetNoName: "",
+      locality: "",
+      colony: "",
+      presentHouseNo: "",
+      presentStreetNoName: "",
+      presentLocality: "",
+      presentColony: "",
+      presentCity: "",
+      presentPincode: "",
+      colonyOther: "",
+      isSameAsProperty: false,
+      taxRateZone: "",
+      propertyOwnership: "",
+      propertyOwnershipOther: "",
+      situation: "",
+      situationOther: "",
+      propertyUse: "",
+      propertyOther: "",
+      commercial: "",
+      commercialOther: "",
+      yearOfConstruction: "",
+      isExemptionApplicable: "",
+      exemptionType: "",
+      exemptionTypeOther: "",
+      floors: [
+          {
+              floorType: "",
+              areaSqFt: "",
+              areaSqMt: "",
+              usageType: "",
+              usageFactor: "",
+              constructionType: "",
+          },
+      ],
+      plotAreaSqFt: "",
+      plotAreaSqMeter: "",
+      plinthAreaSqFt: "",
+      plinthAreaSqMeter: "",
+      totalBuiltUpAreaSqFt: "",
+      totalBuiltUpAreaSqMeter: "",
+      isMuncipalWaterSupply: "",
+      toiletType: "",
+      isMuncipalWasteService: "",
+      totalWaterConnection: "",
+      waterConnectionId: "",
+      waterConnectionType: "",
+      waterConnectionTypeOther: "",
+      sourceOfWater: "",
+      sourceOfWaterOther: "",
+      propertyFirstImage: "for image",
+      propertySecondImage: "for image",
+      latitude: "",
+      longitude: "",
+      supportingDocuments: [],
+      remark: "",
+  },
   });
 
   const userId = useAppSelector(state => state.user.userId);
@@ -129,10 +213,10 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <Box className='p-1'>
+
+        <Box className='p-1 pt-0'>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : undefined}>
-            <VStack space="sm" style={{ marginTop: 5 }}>
+            <VStack space="sm">
               {/* Step 1: Basic Property Details */}
               {currentStep === 1 && (
                 <Box className='bg-gray-300 w-full p-2 rounded-xl'>
@@ -198,7 +282,6 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
             </VStack>
           </KeyboardAvoidingView>
         </Box>
-      </ScrollView>
 
       {/* Navigation Buttons */}
       <Box className={`flex-row items-center mt-3 pt-4 px-2 pb-2 border-t border-gray-300 ${currentStep >1 ? 'justify-between' : 'justify-center'}`}>
@@ -206,20 +289,17 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
           <Button
             isDisabled={isLoading}
             onPress={handlePreviousStep}
-            className={`h-12 w-20 rounded-xl p-1 mx-2`}
+            className='h-12 rounded-xl w-40 mx-2'
           >
-            <Foundation
-              name="previous"
-              size={30}
-              color={'#FFFFFF'}
-              margin={0}
-            />
+           <ButtonText className='text-center'>
+              Previous
+          </ButtonText>
           </Button>
         )}
         <Button
           isDisabled={isLoading}
           onPress={handleSubmit(onSubmit)}
-          className='h-12 w-auto rounded-xl px-20 mx-2'
+          className='h-12 rounded-xl w-40 mx-2'
         >
           {isLoading && <ButtonSpinner size={30} color={'black'} />}
           <ButtonText className='text-center'>

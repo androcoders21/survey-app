@@ -8,13 +8,14 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ToastAndroid } from 'react-native'
 
 interface CapturePhotoProps {
     label: string;
+    handleImage:(value:string)=>void;
 }
 
-const CapturePhoto = ({label}:CapturePhotoProps) => {
+const CapturePhoto = ({label,handleImage}:CapturePhotoProps) => {
 
     const [imageUri, setImageUri] = React.useState("");
     const handleUpload = async () => {
@@ -35,9 +36,11 @@ const CapturePhoto = ({label}:CapturePhotoProps) => {
                     to: newPath,
                 })
                 console.log('newPath',newPath);
+                handleImage(newPath);
             }
             } catch (error) {
                 console.log(error);
+                ToastAndroid.show('Error while uploading image', ToastAndroid.SHORT);
             }
         }
     }

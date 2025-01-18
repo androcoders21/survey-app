@@ -11,20 +11,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react'
 import { Control, Controller, FieldErrors, useFieldArray, UseFormSetValue } from 'react-hook-form';
 import { TouchableOpacity } from 'react-native';
+import CapturePhoto from '../capture-photo';
 
 const formFields = {
     respondentName: "Name of the Respondent *",
     respondentRelationship: "Relationship with Owner *",
     ownerAadhaarNumber: "Owner Aadhaar Number",
 };
-
-const ownerFields = {
-    name: "Owner Name *",
-    fatherName: "Father/Husband Name *",
-    mobile: "Mobile No. *",
-    landline: "Landline No.",
-    email: "Email",
-}
 
 interface StepTwoProps {
     control: Control<CombinedSurveyType, any>;
@@ -74,6 +67,11 @@ const StepTwo = ({ control, errors, setValue }: StepTwoProps) => {
                     {errors[key as keyof Step2Type] && <Text className='text-red-500' size='xs'>{(errors[key as keyof Step2Type] as any)?.message}</Text>}
                 </VStack>
             ))}
+            <Box className='mb-5 mt-2'>
+                    <CapturePhoto handleImage={(value)=>setValue("aadhaarPhoto",value)} label='Capture Aadhar photo'/>
+                    {errors.aadhaarPhoto && <Text className='text-red-500' size='xs'>{errors?.aadhaarPhoto?.message}</Text>}
+                </Box>
+
             <Box className="rounded-lg overflow-hidden border border-slate-300 w-full">
                 <Table className="w-full">
                     <TableHeader>

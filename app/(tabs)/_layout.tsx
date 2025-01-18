@@ -36,13 +36,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="add"
-        options={{
-          title: 'Add Survey',
-          tabBarIcon: ({ color }) => <MaterialIcons name="add-home" size={28} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="index"
         options={{
           title: 'Surveys',
