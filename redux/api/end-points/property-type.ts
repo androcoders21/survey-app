@@ -42,7 +42,16 @@ const propertyType = apiSlice.injectEndpoints({
         fetchExemption:builder.query<any,void>({
             query:()=>'property-owner-sections',
         }),
+        fetchUsageType:builder.query<any,void>({
+            query:()=>'auth/usage-type-list'
+        }),
+        fetchUsageFactor:builder.query<any,void>({
+            query:()=>'auth/usare-factor-list'
+        }),
+        fetchConstructionType:builder.query<any,void>({
+            query:()=>'auth/construction-type-list'
+        })
     })
 });
 
-export const {useFetchPropertyQuery,useFetchLandLocatedQuery,useFetchFloorTypeQuery,useFetchBuildingOccupiedByQuery,useFetchNatureOfConstructionQuery,useFetchLandmarksQuery,useFetchTaxRateQuery,useFetchPropertyOwnershipQuery,useFetchPropertySituationQuery,useFetchPropertyUsesQuery,useFetchCommercialUsesQuery,useFetchYearOfConstructionQuery,useFetchExemptionQuery} = propertyType;
+export const {useFetchPropertyQuery,useFetchLandLocatedQuery,useFetchFloorTypeQuery,useFetchBuildingOccupiedByQuery,useFetchNatureOfConstructionQuery,useFetchLandmarksQuery,useFetchTaxRateQuery,useFetchPropertyOwnershipQuery,useFetchPropertySituationQuery,useFetchPropertyUsesQuery,useFetchCommercialUsesQuery,useFetchYearOfConstructionQuery,useFetchExemptionQuery,useFetchUsageFactorQuery,useFetchUsageTypeQuery,useFetchConstructionTypeQuery} = propertyType;

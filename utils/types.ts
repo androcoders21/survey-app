@@ -237,3 +237,29 @@ export interface ExemptionType {
     updated_at: string;
 }
 
+export interface UsageType {
+    created_at: string;
+    id: number;
+    proparty: any[]; // Replace 'any' with the specific type if the array has a defined structure.
+    status: string;
+    type_description: string;
+    type_name: string;
+    updated_at: string;
+}
+
+export interface FactorType {
+    created_at: string;
+    id: number;
+    name: string;
+    status: string;
+    updated_at: string;
+}
+
+export interface ConstructionType {
+    created_at: string;
+    id: number;
+    name: string;
+    status: string;
+    updated_at: string;
+}
+

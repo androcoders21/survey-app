@@ -33,9 +33,9 @@ const AddSurvey = () => {
         <>
             <Stack.Screen options={{
                 title: 'Add Survey',
-                headerTitle: "Add Survey",
+                headerTitle: "New Survey",
                 headerShown: true,
-                headerTitleStyle: { fontWeight: '700' },
+                headerTitleStyle: { fontWeight: '600' },
             }} />
             <View style={styles.container}>
                 <View style={styles.stickyTopComponent}>

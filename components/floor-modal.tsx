@@ -11,9 +11,9 @@ import { CombinedSurveyType, floorDetailsSchema, FloorDetailsType } from '@/util
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, ButtonText } from './ui/button';
 import { Dimensions, ScrollView } from 'react-native';
-import { FloorTypeType, WardType } from '@/utils/types';
+import { ConstructionType, FactorType, FloorTypeType, UsageType, WardType } from '@/utils/types';
 import { Box } from './ui/box';
-import { useFetchFloorTypeQuery } from '@/redux/api/end-points/property-type';
+import { useFetchConstructionTypeQuery, useFetchFloorTypeQuery, useFetchUsageFactorQuery, useFetchUsageTypeQuery } from '@/redux/api/end-points/property-type';
 
 interface FloorModalProps {
     showModal: boolean;
@@ -23,6 +23,10 @@ interface FloorModalProps {
 
 const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
     const { data: floorData } = useFetchFloorTypeQuery();
+    const { data: usageTypeData } = useFetchUsageTypeQuery();
+    const { data: usageFactorData } = useFetchUsageFactorQuery();
+    const { data: constructionTypeData } = useFetchConstructionTypeQuery();
+
     const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<FloorDetailsType>({
         resolver: zodResolver(floorDetailsSchema),
     });
@@ -38,14 +42,19 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
         name: 'areaSqFt'
     });
 
+    const handleClose = () => {
+        reset()
+        closeModal()
+    }
+
     useEffect(() => {
-            setValue('areaSqMt', (parseInt(areaSqFt || "0") * 0.092903).toFixed(4))
+        setValue('areaSqMt', (parseInt(areaSqFt || "0") * 0.092903).toFixed(4))
     }, [areaSqFt])
 
     return (
         <Modal
             isOpen={showModal}
-            onClose={closeModal}
+            onClose={handleClose}
             size="md"
         >
             <ModalBackdrop />
@@ -71,7 +80,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                                 <Select isInvalid={!!errors.floorType} onValueChange={(data) => { setValue("floorType", data) }}>
                                     <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
-                                        <SelectInput className='text-sm font-bold' placeholder="Select ward" />
+                                        <SelectInput className='text-sm font-bold' placeholder="Select flooor type" />
                                         <SelectIcon className="mr-3" as={ChevronDownIcon} />
                                     </SelectTrigger>
                                     <SelectPortal>
@@ -143,7 +152,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                                 <Select isInvalid={!!errors.usageType} onValueChange={(data) => { setValue("usageType", data) }}>
                                     <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
-                                        <SelectInput className='text-sm font-bold' placeholder="Select ward" />
+                                        <SelectInput className='text-sm font-bold' placeholder="Select usage type" />
                                         <SelectIcon className="mr-3" as={ChevronDownIcon} />
                                     </SelectTrigger>
                                     <SelectPortal>
@@ -153,8 +162,8 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {["Residential", "Commercial", "Industrial"].map((item) => (
-                                                    <SelectItem key={item} label={item} value={item} />
+                                                {usageTypeData?.map((item:UsageType) => (
+                                                    <SelectItem key={item.id} label={item.type_name} value={item.id.toString()} />
                                                 ))}
                                             </ScrollView>
                                         </SelectContent>
@@ -173,7 +182,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                                 <Select isInvalid={!!errors.usageFactor} onValueChange={(data) => { setValue("usageFactor", data) }}>
                                     <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
-                                        <SelectInput className='text-sm font-bold' placeholder="Select ward" />
+                                        <SelectInput className='text-sm font-bold' placeholder="Select usage factor" />
                                         <SelectIcon className="mr-3" as={ChevronDownIcon} />
                                     </SelectTrigger>
                                     <SelectPortal>
@@ -183,8 +192,8 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {["Self Occupied", "Rented"].map((item) => (
-                                                    <SelectItem key={item} label={item} value={item} />
+                                                {usageFactorData?.map((item:FactorType) => (
+                                                    <SelectItem key={item.id} label={item.name} value={item.id.toString()} />
                                                 ))}
                                             </ScrollView>
                                         </SelectContent>
@@ -203,7 +212,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                                 <Select isInvalid={!!errors.constructionType} onValueChange={(data) => { setValue("constructionType", data) }}>
                                     <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
-                                        <SelectInput className='text-sm font-bold' placeholder="Select ward" />
+                                        <SelectInput className='text-sm font-bold' placeholder="Select construction type" />
                                         <SelectIcon className="mr-3" as={ChevronDownIcon} />
                                     </SelectTrigger>
                                     <SelectPortal>
@@ -213,13 +222,8 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {[
-                                                    "आर.सी.सी, आर् या पत्थर की छत युक्त पक्के भवन",
-                                                    "सीमेन्ट या लोहे की चादर की छत युक्त पक्के भवन",
-                                                    "अन्य आशिंक कच्चे भवन जो उपरोक्त में नहीं आते",
-                                                    "खुली भूमि"
-                                                ].map((item) => (
-                                                    <SelectItem key={item} label={item} value={item} />
+                                                {constructionTypeData?.map((item:ConstructionType) => (
+                                                    <SelectItem key={item.id} label={item.name} value={item.id.toString()} />
                                                 ))}
                                             </ScrollView>
                                         </SelectContent>
@@ -235,7 +239,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                     <Button
                         variant="outline"
                         action="secondary"
-                        onPress={closeModal}
+                        onPress={handleClose}
                     >
                         <ButtonText>Cancel</ButtonText>
                     </Button>

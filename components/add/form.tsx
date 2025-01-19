@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, Platform, KeyboardAvoidingView, ScrollView, ToastAndroid, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Box } from '@/components/ui/box';
@@ -16,7 +16,7 @@ import { useFetchWardQuery } from '@/redux/api/end-points/ward';
 import Foundation from '@expo/vector-icons/Foundation';
 import { clearLocal } from '@/utils/helper';
 import { setUserId, setUserToken } from '@/redux/slices/user';
-import { apiSlice } from '@/redux/api/api-slice';
+import { apiSlice, baseUrl } from '@/redux/api/api-slice';
 import { CombinedSurveyType, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema } from '@/utils/validation-schema';
 import StepOne from './step-one';
 import StepTwo from './step-two';
@@ -25,6 +25,7 @@ import StepFour from './step-four';
 import StepFive from './step-five';
 import StepSix from './step-six';
 import StepSeven from './step-seven';
+import axios from 'axios';
 
 interface FormProps {
   currentStep: number;
@@ -58,7 +59,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
   };
 
   const { control, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<CombinedSurveyType>({
-    // resolver: hadelValidation(currentStep),
+    resolver: hadelValidation(currentStep),
     defaultValues: {
       ulbNameCode: "",
       wardNo: "",
@@ -120,16 +121,35 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       waterConnectionTypeOther: "",
       sourceOfWater: "",
       sourceOfWaterOther: "",
-      propertyFirstImage: "for image",
-      propertySecondImage: "for image",
+      propertyFirstImage: { name: '', uri: '', type: '' },
+      propertySecondImage: { name: '', uri: '', type: '' },
       latitude: "",
       longitude: "",
       supportingDocuments: [],
       remark: "",
-  },
+    },
   });
 
+  useEffect(() => {
+
+    async function getCurrentLocation() {
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        ToastAndroid.show('Permission to access location was denied', ToastAndroid.SHORT);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({ accuracy: 4 });
+      setValue("latitude", location.coords.latitude.toString());
+      setValue("longitude", location.coords.longitude.toString());
+      
+    }
+    getCurrentLocation();
+  }, [])
+
   const userId = useAppSelector(state => state.user.userId);
+  const userToken = useAppSelector(state => state.user.token)
 
   const onSubmit = async (data: any) => {
     if (currentStep !== 7) {
@@ -139,17 +159,44 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
     }
     console.log("Last Step", data);
     try {
-      const response = await createSurvey({ ...data, user_id: userId }).unwrap();
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          formData.append(key, value as any);
+        }
+        else if(key === "aadhaarPhoto" && value){
+          const aadhaarPhoto = {
+            uri:value,
+            name: 'aadhaarPhoto.jpg',
+            type: 'image/jpeg',
+          }
+          // formData.append(key, aadhaarPhoto as any);
+        }
+        else if(key === "propertyFirstImage" || key === "propertySecondImage"){
+            formData.append(key, '');
+        }
+        else if(key === "isSameAsProperty"){
+          // formData.append(key,JSON.stringify(value))
+        } else{
+          formData.append(key, value as any);
+        }
+      });
+      // formData.append("user_id", userId);
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+    }
+      const response = await createSurvey(formData).unwrap();
+            console.log("Response",response);
       ToastAndroid.show("Survey created successfully", ToastAndroid.SHORT);
-      // router.navigate({ pathname: '/form/step-second', params: { formId: response?.survey_form?.id } });
+      router.replace({ pathname: '/(tabs)/main'});
       reset();
     } catch (error: any) {
-      console.log(error);
-      if (error?.data?.status === 401) {
+      console.log('Error',error);
+      if (error?.status === 401) {
         handleLogout();
         ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-      } else if (error && typeof error?.data?.error === "string") {
-        ToastAndroid.show(error?.data?.error, ToastAndroid.SHORT);
+      } else if (error && typeof error?.data?.message === "string") {
+        ToastAndroid.show(error?.data?.message, ToastAndroid.SHORT);
       } else {
         ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
       }
@@ -198,86 +245,87 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
   return (
     <SafeAreaView style={styles.container}>
 
-        <Box className='p-1 pt-0'>
-          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : undefined}>
-            <VStack space="sm">
-              {/* Step 1: Basic Property Details */}
-              {currentStep === 1 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepOne control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
+      <Box className='p-1 pt-0'>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : undefined}>
+          <VStack space="sm">
+            {/* Step 1: Basic Property Details */}
+            {currentStep === 1 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepOne control={control} errors={errors} setValue={setValue} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 2: Owner Details */}
-              {currentStep === 2 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepTwo control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
+            {/* Step 2: Owner Details */}
+            {currentStep === 2 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepTwo control={control} errors={errors} setValue={setValue} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 3: Property Address */}
-              {currentStep === 3 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepThree control={control} errors={errors} setValue={setValue} getValues={getValues} />
-                  </VStack>
-                </Box>
-              )}
+            {/* Step 3: Property Address */}
+            {currentStep === 3 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepThree control={control} errors={errors} setValue={setValue} getValues={getValues} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 4: Taxation and General Property Details */}
-              {currentStep === 4 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepFour control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
+            {/* Step 4: Taxation and General Property Details */}
+            {currentStep === 4 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepFour control={control} errors={errors} setValue={setValue} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 5: Property Area Details */}
-              {currentStep === 5 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepFive control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
+            {/* Step 5: Property Area Details */}
+            {currentStep === 5 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepFive control={control} errors={errors} setValue={setValue} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 6: Utilities and Sanitation */}
-              {currentStep === 6 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
-                    <StepSix control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
+            {/* Step 6: Utilities and Sanitation */}
+            {currentStep === 6 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+                  <StepSix control={control} errors={errors} setValue={setValue} />
+                </VStack>
+              </Box>
+            )}
 
-              {/* Step 7: Supporting Details and Documentation */}
-              {currentStep === 7 && (
-                <Box className='bg-gray-300 w-full p-2 rounded-xl'>
-                  <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
+            {/* Step 7: Supporting Details and Documentation */}
+            {currentStep === 7 && (
+              <Box className='bg-gray-300 w-full p-2 rounded-xl'>
+                <VStack space='lg' className='bg-white px-2 py-2 my-2 rounded-2xl'>
                   <StepSeven control={control} errors={errors} setValue={setValue} />
-                  </VStack>
-                </Box>
-              )}
-            </VStack>
-          </KeyboardAvoidingView>
-        </Box>
+                </VStack>
+              </Box>
+            )}
+          </VStack>
+        </KeyboardAvoidingView>
+      </Box>
 
       {/* Navigation Buttons */}
-      <Box className={`flex-row items-center mt-3 pt-4 px-2 pb-2 border-t border-gray-300 ${currentStep >1 ? 'justify-between' : 'justify-center'}`}>
+      <Box className={`flex-row items-center mt-3 pt-4 px-2 pb-2 border-t border-gray-300 ${currentStep > 1 ? 'justify-between' : 'justify-center'}`}>
         {currentStep > 1 && (
           <Button
             isDisabled={isLoading}
             onPress={handlePreviousStep}
             className='h-12 rounded-xl w-40 mx-2'
+            variant='outline'
           >
-           <ButtonText className='text-center'>
+            <ButtonText className='text-center'>
               Previous
-          </ButtonText>
+            </ButtonText>
           </Button>
         )}
         <Button

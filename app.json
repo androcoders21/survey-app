@@ -7,7 +7,7 @@
     "icon": "./assets/images/app-logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mohdsaqlain.surveyapp"
@@ -17,8 +17,8 @@
         "foregroundImage": "./assets/images/app-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "config":{
-        "googleMaps":{
+      "config": {
+        "googleMaps": {
           "apiKey": "AIzaSyDgFcTmfanz9rxx1l0Hl9-cMTNJF8jpgQE"
         }
       },

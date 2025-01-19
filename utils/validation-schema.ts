@@ -137,8 +137,8 @@ export const step1Schema = z.object({
     ulbNameCode: z.string().min(3, { message: "Minimum 3 characters are required" }),
     wardNo: z.string().min(1, "Ward No is required"),
     nagarpalikaId: z.string().optional(),
-    parcelNo: z.string().optional(),
-    propertyNo: z.string().optional(),
+    parcelNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    propertyNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
     electricityId: z.string().optional(),
     khasraNo: z.string().optional(),
     registryNo: z.string().optional(),
@@ -150,6 +150,7 @@ export const step1Schema = z.object({
 export const step2Schema = z.object({
     respondentName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     respondentRelationship: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    respondentRelationshipOther:z.string().optional(),
     ownerAadhaarNumber: z.string().optional()
         .refine((value) => value === undefined || value === "" || /^\d{12}$/.test(value), { message: "Aadhaar number must be 12 digits" }),
     aadhaarPhoto: z.string().optional(),
@@ -164,7 +165,18 @@ export const step2Schema = z.object({
                 message: "Invalid email address",
             }),
     })).min(1, "At least one owner is required"),
-});
+}).refine(
+    (data) => {
+        if (data.respondentRelationship === "Other" && !data.respondentRelationshipOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Property Ownership Other is required when 'Other' is selected",
+        path: ["respondentRelationshipOther"], // Path to the field that will show the error
+    }
+);
 
 export const step3Schema = z.object({
     houseNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
@@ -317,16 +329,23 @@ export const step6Schema = z.object({
 });
 
 export const step7Schema = z.object({
-    propertyFirstImage: z.string().optional(),
-    propertySecondImage: z.string().optional(),
-    latitude: z.string().optional(),
-    longitude: z.string().optional(),
-    supportingDocuments: z.array(z.object({
+    propertyFirstImage: z.object({
         name: z.string().nonempty("File name is required"),
         uri: z.string().nonempty("File URI must be a valid URL"),
         type: z.string().nonempty("File type is required"),
-        size: z.number().positive("File size must be greater than 0").max(2 * 1024 * 1024, { message: "File size must be less than 2MB" })
-    })).optional(),
+    }),
+    propertySecondImage: z.object({
+        name: z.string().nonempty("File name is required"),
+        uri: z.string().nonempty("File URI must be a valid URL"),
+        type: z.string().nonempty("File type is required"),
+    }),
+    latitude: z.string().optional(),    
+    longitude: z.string().optional(),
+    supportingDocuments: z.array(z.object({
+        name: z.string().optional(),
+        uri: z.string().optional(),
+        type: z.string().optional(),
+    }),).optional(),
     remark: z.string().optional(),
 });
 

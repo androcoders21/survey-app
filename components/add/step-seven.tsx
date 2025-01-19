@@ -2,19 +2,21 @@ import React from 'react'
 import { Box } from '@/components/ui/box'
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
-import { ChevronDownIcon, CircleIcon } from '@/components/ui/icon';
+import { ChevronDownIcon, CircleIcon, Icon } from '@/components/ui/icon';
 import { Input, InputField } from '@/components/ui/input';
 import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger } from '@/components/ui/select';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack'
 import { CombinedSurveyType, Step6Type } from '@/utils/validation-schema';
-import { Control, Controller, FieldErrors, UseFormSetValue, useWatch } from 'react-hook-form';
+import { Control, Controller, FieldErrors, useFieldArray, UseFormSetValue, useWatch } from 'react-hook-form';
 import CapturePhoto from '@/components/capture-photo';
 import { Image } from 'expo-image';
 import { Textarea, TextareaInput } from '../ui/textarea';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useAppSelector } from '@/utils/hooks';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { set } from 'zod';
+import Entypo from '@expo/vector-icons/Entypo';
 
 const formFields = {
     totalWaterConnection: "No. of Connection",
@@ -27,46 +29,66 @@ interface StepSevenProps {
     setValue: UseFormSetValue<CombinedSurveyType>;
 }
 
+interface ImageArgs {
+    name: string;
+    uri: string;
+    type: string;
+}
+
 const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
+    console.log(errors);
     const currentLocation = useAppSelector((state) => state.map);
-    const [latitude,longitude] = useWatch({ control, name: ['latitude','longitude'] });
+    const [isMapReady, setIsMapReady] = React.useState(false);
+    const [latitude, longitude, propertyFirstImage, propertySecondImage] = useWatch({ control, name: ['latitude', 'longitude', 'propertyFirstImage', 'propertySecondImage'] });
+    const { fields, append, remove, } = useFieldArray({ control, name: 'supportingDocuments' });
     console.log(currentLocation);
 
     const handleMarker = (coordinate: any) => {
         console.log(coordinate);
-        setValue("latitude",coordinate?.latitude);
-        setValue("longitude",coordinate?.longitude);
+        setValue("latitude", coordinate?.latitude?.toString());
+        setValue("longitude", coordinate?.longitude?.toString());
+    }
+
+
+    const handleDocument = (value: ImageArgs) => {
+        append(value);
     }
 
     return (
         <Box>
             <Heading className='pb-3'>Property Photo:</Heading>
             <VStack space='lg' className='mb-3'>
-                <CapturePhoto handleImage={(value)=>setValue("propertyFirstImage",value)} label='Capture first photo' />
-                <CapturePhoto handleImage={(value)=>setValue("propertySecondImage",value)} label='Capture second photo' />
+                <CapturePhoto handleImage={(value) => setValue("propertyFirstImage", { name: value.name, uri: value.uri, type: value.type })} label={propertyFirstImage ? propertyFirstImage?.name || 'Capture first photo *' : 'Capture first photo *'} />
+                {errors.propertyFirstImage?.name && <Text className="pl-2 text-red-500" size="xs">{errors?.propertyFirstImage?.name?.message}</Text>}
+                <CapturePhoto handleImage={(value) => setValue("propertySecondImage", { name: value.name, uri: value.uri, type: value.type })} label={propertySecondImage ? propertySecondImage?.name || 'Capture second photo *' : 'Capture second photo *'} />
+                {errors.propertySecondImage?.name && <Text className="pl-2 text-red-500" size="xs">{errors?.propertySecondImage?.name?.message}</Text>}
             </VStack>
 
             <Heading className='pb-3 pt-1'>Property Location:</Heading>
             <MapView
                 onMarkerDragEnd={(e) => handleMarker(e.nativeEvent.coordinate)}
-                showsUserLocation={true}
-                showsMyLocationButton={true}
-                onMapLoaded={() => console.log('Map Loaded')}
+                onMapLoaded={() => setIsMapReady(true)}
                 mapType='satellite'
                 initialRegion={{
-                    latitude: currentLocation.latitude,
-                    longitude: currentLocation.longitude,
+                    latitude: Number(latitude) || 26.4777283,
+                    longitude: Number(longitude) || 80.3988467,
                     latitudeDelta: 0.0007,
                     longitudeDelta: 0.0007,
                 }}
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
             >
-                <Marker draggable coordinate={{latitude:latitude ? Number(latitude) : currentLocation.latitude,
-                    longitude:longitude ? Number(longitude) : currentLocation.longitude}}/>
+                {isMapReady && <Marker draggable coordinate={{ latitude: Number(latitude) || 26.4777283, longitude: Number(longitude) || 80.3988467 }} />}
             </MapView>
 
             <Heading className='pb-3 pt-1'>Upload Supporting Documents:</Heading>
+            <CapturePhoto handleImage={(value) => handleDocument(value)} label={'Upload supporting documents'} />
+            {fields.map((item, index) => (
+                <Box key={item.id} className='my-2 py-3 px-2 border border-slate-300 rounded-lg flex flex-row justify-between'>
+                    <Text size='sm' bold>Document {index + 1}</Text>
+                    <Pressable onPress={() => remove(index)}><Icon as={() => <Entypo name="circle-with-cross" size={20} color="black" />} size="md" /></Pressable>
+                </Box>
+            ))}
             <Heading className='pb-3 pt-1'>Remark</Heading>
             <Controller
                 name='remark'

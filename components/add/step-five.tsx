@@ -7,9 +7,11 @@ import { VStack } from '@/components/ui/vstack'
 import { CombinedSurveyType } from '@/utils/validation-schema';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Control, Controller, FieldErrors, useFieldArray, UseFormGetValues, UseFormSetValue, useWatch } from 'react-hook-form';
-import { TouchableOpacity } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { Table, TableBody, TableCaption, TableData, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import FloorModal from '@/components/floor-modal';
+import { useFetchConstructionTypeQuery, useFetchFloorTypeQuery, useFetchUsageFactorQuery, useFetchUsageTypeQuery } from '@/redux/api/end-points/property-type';
+import { ConstructionType, FactorType, FloorType, FloorTypeType, UsageType } from '@/utils/types';
 
 
 interface StepFiveProps {
@@ -20,6 +22,10 @@ interface StepFiveProps {
 
 const StepFive = ({ control, errors, setValue }: StepFiveProps) => {
     const [showModal, setShowModal] = React.useState(false);
+    const { data: floorData } = useFetchFloorTypeQuery();
+    const { data: usageTypeData } = useFetchUsageTypeQuery();
+    const { data: usageFactorData } = useFetchUsageFactorQuery();
+    const { data: constructionTypeData } = useFetchConstructionTypeQuery();
     const { fields, append, remove, replace } = useFieldArray({
         control,
         name: "floors",
@@ -134,31 +140,35 @@ const StepFive = ({ control, errors, setValue }: StepFiveProps) => {
             </VStack>
 
             <Box className="rounded-lg overflow-hidden border border-slate-300 border-b-0 w-full">
-                <Table className="w-full">
-                    <TableHeader>
-                        <TableRow className='bg-slate-100 py-1'>
-                            <TableHead className='text-sm p-0 text-center align-middle'>Floor No.</TableHead>
-                            <TableHead className='text-sm p-0 text-center align-middle'>Area</TableHead>
-                            <TableHead className='text-sm p-0 text-center align-middle'>Usage Type</TableHead>
-                            <TableHead className='text-sm p-0 text-center align-middle'>Usage Factor</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {fields.map((item, index) => (
-                            <TouchableOpacity key={item.id} activeOpacity={0.7} onPress={() => console.log('clicked')} onLongPress={() => handleLongPress(index)}>
-                                <TableRow className='py-1'>
-                                    <TableData className='text-sm p-0 text-center align-middle'>{item.floorType}</TableData>
-                                    <TableData className='text-sm p-0 text-center align-middle'>{item.areaSqFt}</TableData>
-                                    <TableData className='text-sm p-0 text-center align-middle'>{item.usageType}</TableData>
-                                    <TableData className='text-sm p-0 text-center align-middle'>{item.usageFactor}</TableData>
-                                </TableRow>
-                            </TouchableOpacity>
-                        ))}
-                    </TableBody>
-                    {errors.floors && <TableCaption className='p-1 text-center align-middle'>
-                        <Text size='xs' className='text-red-500' bold>Please add atleast one floor</Text>
-                    </TableCaption>}
-                </Table>
+                <ScrollView horizontal>
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow className='bg-slate-100 py-1'>
+                                <TableHead className='text-sm p-0 w-32 text-center align-middle'>Floor No.</TableHead>
+                                <TableHead className='text-sm p-0 w-32 text-center align-middle'>Area</TableHead>
+                                <TableHead className='text-sm p-0 w-32 text-center align-middle'>Usage Type</TableHead>
+                                <TableHead className='text-sm p-0 w-32 text-center align-middle'>Usage Factor</TableHead>
+                                <TableHead className='text-sm p-0 w-52 text-center align-middle'>Construction Type</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {fields.map((item, index) => (
+                                <TouchableOpacity key={item.id} activeOpacity={0.7} onPress={() => console.log('clicked')} onLongPress={() => handleLongPress(index)}>
+                                    <TableRow className='py-1'>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{floorData?.find((mainItem:FloorTypeType)=>mainItem.id.toString() === item.floorType)?.name || ""}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item.areaSqFt}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{usageTypeData?.find((mainItem:UsageType)=>mainItem.id.toString() === item.usageType)?.type_name || ""}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{usageFactorData.find((mainItem:FactorType)=>mainItem.id.toString() === item.usageFactor)?.name || ""}</TableData>
+                                        <TableData className='text-sm w-52 p-0 text-center align-middle'>{constructionTypeData.find((mainItem:ConstructionType)=>mainItem.id.toString() === item.constructionType)?.name || ""}</TableData>
+                                    </TableRow>
+                                </TouchableOpacity>
+                            ))}
+                        </TableBody>
+                        {errors.floors && <TableCaption className='p-1 text-center align-middle'>
+                            <Text size='xs' className='text-red-500' bold>Please add atleast one floor</Text>
+                        </TableCaption>}
+                    </Table>
+                </ScrollView>
             </Box>
             <Box className='flex flex-row justify-between items-center mt-2'>
                 <Text size='sm' className='text-gray-500 w-11/12'>Note: Long press on a row to delete the row</Text>

@@ -41,14 +41,14 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="light">
       <Provider store={store}>
-        <Stack>
+        <Stack screenOptions={{headerStyle:{backgroundColor:'#05837a'},headerTintColor:'#ffffff'}}>
           <Stack.Screen name='index' options={{headerShown:false}} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="form/edit" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         </Provider>
-        <StatusBar style="auto" backgroundColor='#A1CEDC' />
+        <StatusBar style="light" backgroundColor='#0a6a73' />
     </GluestackUIProvider>
   );
 }

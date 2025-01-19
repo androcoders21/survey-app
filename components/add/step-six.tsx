@@ -10,10 +10,12 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack'
 import { CombinedSurveyType, Step6Type } from '@/utils/validation-schema';
 import { Control, Controller, FieldErrors, UseFormSetValue, useWatch } from 'react-hook-form';
+import { useFetchUsageTypeQuery } from '@/redux/api/end-points/property-type';
+import { UsageType } from '@/utils/types';
 
 const formFields = {
-    totalWaterConnection: "No. of Connection",
-    waterConnectionId: "Water supply connection ID",
+    totalWaterConnection: "No. of Connection *",
+    waterConnectionId: "Water supply connection ID *",
 }
 
 interface StepSixProps {
@@ -23,6 +25,7 @@ interface StepSixProps {
 }
 
 const StepSix = ({ control, errors, setValue }: StepSixProps) => {
+    const { data: usageTypeData } = useFetchUsageTypeQuery();
     const [isMuncipalWaterSupply, waterConnectionType, sourceOfWater, isMuncipalWasteService] = useWatch({ control, name: ["isMuncipalWaterSupply", "waterConnectionType", "sourceOfWater", "isMuncipalWasteService"] });
     return (
         <Box>
@@ -73,7 +76,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                         name='waterConnectionType'
                         control={control}
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <Select isInvalid={!!errors.waterConnectionType} onValueChange={(data) => { setValue("waterConnectionType", data); console.log(data) }}>
+                            <Select defaultValue={value ? usageTypeData?.find((mainItem:UsageType)=>mainItem.id.toString() === value)?.type_name : ""} isInvalid={!!errors.waterConnectionType} onValueChange={(data) => { setValue("waterConnectionType", data); console.log(data) }}>
                                 <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                     <SelectInput className='text-sm font-bold' placeholder="Select type of use" />
                                     <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -84,8 +87,8 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                         <SelectDragIndicatorWrapper>
                                             <SelectDragIndicator />
                                         </SelectDragIndicatorWrapper>
-                                        {["Residential", "Commercial", "Industrial", "Other"].map((item) => (
-                                            <SelectItem key={item} label={item} value={item} />
+                                        {usageTypeData?.map((item: UsageType) => (
+                                            <SelectItem key={item.id} label={item.type_name} value={item.id.toString()} />
                                         ))}
                                     </SelectContent>
                                 </SelectPortal>
@@ -132,7 +135,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                         <SelectDragIndicatorWrapper>
                                             <SelectDragIndicator />
                                         </SelectDragIndicatorWrapper>
-                                        {["Government Tap", "Dug well", "Other"].map((item) => (
+                                        {["Government Tap", "Dug well","Borewell", "Other"].map((item) => (
                                             <SelectItem key={item} label={item} value={item} />
                                         ))}
                                     </SelectContent>

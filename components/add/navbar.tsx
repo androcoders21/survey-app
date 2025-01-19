@@ -62,19 +62,19 @@ const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#05837a',
     elevation: 3,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#fff',
     borderRadius: 3,
     overflow: 'hidden',
     margin: 10,
   },
   progress: {
     height: '100%',
-    backgroundColor: '#FF5D00', // Progress bar color
+    backgroundColor: '#b5db0b', // Progress bar color
   },
   stepsContainer: {
     flexDirection: 'row',
@@ -95,23 +95,22 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   activeCircle: {
-    backgroundColor: '#FF5D00', // Active circle color
+    backgroundColor: '#aacc12', // Active circle color
   },
   stepNumber: {
     color: '#757575',
     fontWeight: 'bold',
   },
   activeStepNumber: {
-    color: '#ffffff', // Active step number color
+    color: '#757575', // Active step number color
   },
   stepLabel: {
     fontSize: 12,
-    color: '#757575',
+    color: '#fff',
     textAlign: 'center',
   },
   activeStepLabel: {
-    color: '#FF5D00', // Active step label color
-    fontWeight: 'bold',
+    color: '#fff', // Active step label color
   },
 });
 

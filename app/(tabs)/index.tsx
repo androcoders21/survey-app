@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heading } from '@/components/ui/heading';
@@ -48,15 +48,17 @@ export default function HomeScreen() {
     setIsFetching(true);
     setAllSurveys(() => ([]));
     try {
-      const response: any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${1}`, {
+      const response: any = await axios.get(`${baseUrl}properties?user_id=${userId}&per_page=10&page=${1}`, {
         headers: {
           "Authorization": `Bearer ${userToken}`,
           "Accept": "application/json"
         }
       });
-      setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
-      setTotalPages(response?.data?.survey_forms?.last_page || 1);
-      setPage(1);
+      // console.log("RESPONSE", response.data);
+      setAllSurveys(response?.data);
+      // setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
+      // setTotalPages(response?.data?.survey_forms?.last_page || 1);
+      // setPage(1);
     } catch (error: any) {
       if (error?.response?.status === 401) {
         handleLogout()
@@ -71,7 +73,7 @@ export default function HomeScreen() {
 
   const fetchMoreSurvey = async (pageNo: number) => {
     try {
-      const response: any = await axios.get(`${baseUrl}survey-forms?user_id=${userId}&per_page=10&page=${pageNo}`, {
+      const response: any = await axios.get(`${baseUrl}properties?user_id=${userId}&per_page=10&page=${pageNo}`, {
         headers: {
           "Authorization": `Bearer ${userToken}`,
           "Accept": "application/json"
@@ -120,53 +122,70 @@ export default function HomeScreen() {
     }
   }
 
-  const renderItem = ({ item: surveyItem }: { item: SurveyDetailsType }) => {
-    return (
-      <Box className='my-2 border border-slate-400 bg-gray-300 rounded-xl'>
-        <Box className=' bg-white border-b border-slate-400 p-2 rounded-xl'>
-          <HStack>
-            <Text size='sm' bold className='w-3/12'>Id :</Text>
-            <Text size='sm' className='w-3/12'>{surveyItem.id}</Text>
-            <Text size='sm' bold className='w-3/12'>Parcel Id :</Text>
-            <Text size='sm' className='w-3/12'>{surveyItem?.udf3 || "NA"}</Text>
-          </HStack>
-          {[{ key: "Owner Name", value: "nameOfOwner" }, { key: "Mobile No.", value: "mobile" }, { key: "Address", value: "address_of_residence" }, { key: "City", value: "city" }, { key: "YOC", value: "year_of_construction" }]
-            .map((item, index) => (
-              <HStack key={item.key}>
-                <Text size='sm' bold className='w-3/12'>{item.key} :</Text>
-                <Text size='sm' className='w-9/12'>{String(surveyItem?.[item.value as keyof SurveyDetailsType] || "NA")}</Text>
-              </HStack>
-            ))}
-          <HStack>
-            <Text size='sm' bold className='w-3/12'>Created at :</Text>
-            <Text size='sm' className='w-9/12'>{surveyItem?.created_at ? formatDate(surveyItem.created_at) : "NA"}</Text>
-          </HStack>
-        </Box>
-        <HStack className='w-full bg-gray-300 rounded-b-xl px-2'>
-          <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.EDIT)} className='w-6/12 py-2'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
-          <Divider orientation='vertical' className='bg-gray-500 ' />
-          <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.VIEW)} className='w-6/12 py-2'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
-        </HStack>
-      </Box>
-    )
-  };
+  // const renderItem = ({ item: surveyItem }: { item: SurveyDetailsType }) => {
+  //   return (
+  //     <Box className='my-2 border border-slate-400 bg-gray-300 rounded-xl'>
+  //       <Box className=' bg-white border-b border-slate-400 p-2 rounded-xl'>
+  //         <HStack>
+  //           <Text size='sm' bold className='w-3/12'>Id :</Text>
+  //           <Text size='sm' className='w-3/12'>{surveyItem.id}</Text>
+  //           <Text size='sm' bold className='w-3/12'>Parcel Id :</Text>
+  //           <Text size='sm' className='w-3/12'>{surveyItem?.udf3 || "NA"}</Text>
+  //         </HStack>
+  //         {[{ key: "Owner Name", value: "nameOfOwner" }, { key: "Mobile No.", value: "mobile" }, { key: "Address", value: "address_of_residence" }, { key: "City", value: "city" }, { key: "YOC", value: "year_of_construction" }]
+  //           .map((item, index) => (
+  //             <HStack key={item.key}>
+  //               <Text size='sm' bold className='w-3/12'>{item.key} :</Text>
+  //               <Text size='sm' className='w-9/12'>{String(surveyItem?.[item.value as keyof SurveyDetailsType] || "NA")}</Text>
+  //             </HStack>
+  //           ))}
+  //         <HStack>
+  //           <Text size='sm' bold className='w-3/12'>Created at :</Text>
+  //           <Text size='sm' className='w-9/12'>{surveyItem?.created_at ? formatDate(surveyItem.created_at) : "NA"}</Text>
+  //         </HStack>
+  //       </Box>
+  //       <HStack className='w-full bg-gray-300 rounded-b-xl px-2'>
+  //         {/* <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.EDIT)} className='w-6/12 py-2'><Text className='text-center' size='sm' bold>Edit <Icon as={() => <Feather name="edit" size={15} />} size="md" /></Text></TouchableOpacity>
+  //         <Divider orientation='vertical' className='bg-gray-500 ' /> */}
+  //         <TouchableOpacity onPress={() => handleView(surveyItem, PressTypes.VIEW)} className='w-full py-2'><Text className='text-center' size='sm' bold>View <Icon as={() => <Feather name="eye" size={15} />} size="md" /></Text></TouchableOpacity>
+  //       </HStack>
+  //     </Box>
+  //   )
+  // };
+
+   const renderItem = ({ item }: { item: any }) => (
+      <TouchableOpacity activeOpacity={0.7} style={styles.item} onPress={() => router.push(`/details/survey`)}>
+        <Text style={styles.title}>Property No: {item?.propertyNo || "NA"}</Text>
+        <View style={styles.row}>
+          <View style={styles.column}>
+            <Text style={styles.details}>Registry No: {item?.registryNo || "NA"}</Text>
+            <Text style={styles.details}>Constructed Date: {item?.constructedDate || "NA"}</Text>
+            <Text style={styles.details}>Respondent Name: {item?.respondentName || "NA"}</Text>
+            <Text style={styles.details}>Pincode: {item.pincode}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.details}>House No: {item?.houseNo || "NA"}</Text>
+            <Text style={styles.details}>Locality: {item?.locality || "NA"}</Text>
+            <Text style={styles.details}>Colony: {item?.colony || "NA"}</Text>
+            <Text style={styles.details}>City: {item?.city || "NA"}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
 
   const handleLoadMore = () => {
     console.log("LOAD MORE");
-    console.log("PAGE--->", page, "TOTAL PAGES---->", totalPages);
-    if (isFetching || isLoading || page > totalPages) return;
-    setIsLoading(true);
-    fetchMoreSurvey(page + 1);
-    setPage((prevPage) => prevPage + 1);
+    // console.log("PAGE--->", page, "TOTAL PAGES---->", totalPages);
+    // if (isFetching || isLoading || page > totalPages) return;
+    // setIsLoading(true);
+    // fetchMoreSurvey(page + 1);
+    // setPage((prevPage) => prevPage + 1);
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <Box className='bg-white relative w-full py-3'>
         <Heading size='2xl' className='text-center'>Surveys</Heading>
-        <Box className='absolute top-5 right-5'>
-          <Pressable onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={20} color="red" />} size="md" /></Pressable>
-        </Box>
       </Box>
       {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full py-2 px-3'>
         <FlatList
@@ -190,5 +209,37 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingBottom: 10,
-  }
+  },
+  item: {
+    backgroundColor: '#ffffff',
+    borderLeftWidth: 5,
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderLeftColor: '#FF7100',
+    borderRightColor: '#ddd',
+    borderTopColor: '#ddd',
+    borderBottomColor: '#ddd',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  column: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 13,
+    marginBottom: 5,
+    padding: 2,
+    borderRadius: 5,
+    paddingLeft: 5,
+    borderColor: '#FFDDC1',
+    borderWidth: 1,
+  },
+  details: {
+    fontSize: 10,
+    color: '#555',
+  },
 });

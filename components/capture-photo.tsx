@@ -10,9 +10,14 @@ import { Image } from 'expo-image';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { StyleSheet, ToastAndroid } from 'react-native'
 
+interface ImageArgs {
+    name: string;
+    uri:string;
+    type:string;
+}
 interface CapturePhotoProps {
     label: string;
-    handleImage:(value:string)=>void;
+    handleImage:(value:ImageArgs)=>void;
 }
 
 const CapturePhoto = ({label,handleImage}:CapturePhotoProps) => {
@@ -24,10 +29,10 @@ const CapturePhoto = ({label,handleImage}:CapturePhotoProps) => {
         if (!image?.canceled) {
             const { assets } = image;
             const imageValue = assets[0];
-            setImageUri(imageValue.uri);
-            console.log(imageValue.fileName,Date.now());
-            const fileName = imageValue?.fileName || Date.now();
+            console.log(imageValue);
+            const fileName = imageValue?.fileName || Date.now().toString();
             const fileUri = imageValue.uri;
+            const mimeType = imageValue.mimeType || 'image/jpeg';
             try {
                 if(FileSystem.documentDirectory){
                 const newPath = FileSystem.documentDirectory + fileName;
@@ -35,8 +40,8 @@ const CapturePhoto = ({label,handleImage}:CapturePhotoProps) => {
                     from: fileUri,
                     to: newPath,
                 })
-                console.log('newPath',newPath);
-                handleImage(newPath);
+                setImageUri(fileName);
+                handleImage({name:fileName,uri:fileUri,type:mimeType});
             }
             } catch (error) {
                 console.log(error);
@@ -47,7 +52,7 @@ const CapturePhoto = ({label,handleImage}:CapturePhotoProps) => {
 
     return (
         <Box>
-            <Button onPress={handleUpload} className='border-slate-300 flex flex-row justify-between' variant='outline'><FontAwesome name="camera" size={22} color="gray" /><ButtonText className='text-center text-gray-500 text-sm flex-1'>{label}</ButtonText></Button>
+            <Button onPress={handleUpload} className='border-slate-300 flex flex-row h-14 justify-between' variant='outline'><FontAwesome name="camera" size={22} color="gray" /><ButtonText className='text-center text-gray-500 text-sm flex-1'>{label}</ButtonText></Button>
         </Box>
     )
 }

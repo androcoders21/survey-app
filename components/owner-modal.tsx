@@ -35,10 +35,15 @@ const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {
         closeModal();
     }
 
+    const handleClose = () => {
+        reset();
+        closeModal();
+    }
+
     return (
         <Modal
             isOpen={showModal}
-            onClose={closeModal}
+            onClose={handleClose}
             size="md"
         >
             <ModalBackdrop />
@@ -83,7 +88,7 @@ const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {
                     <Button
                         variant="outline"
                         action="secondary"
-                        onPress={closeModal}
+                        onPress={handleClose}
                     >
                         <ButtonText>Cancel</ButtonText>
                     </Button>

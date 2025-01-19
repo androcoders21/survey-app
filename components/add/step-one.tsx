@@ -15,10 +15,10 @@ import { Dimensions, ScrollView } from 'react-native';
 
 const formFields = {
     nagarpalikaId: "E-Nagarpalika ID",
-    parcelNo: "Parcel No",
-    propertyNo: "Property No",
+    parcelNo: "Parcel No *",
+    propertyNo: "Property No *",
     electricityId: "Electricity ID",
-    khasraNo: "MP Khasra No",
+    khasraNo: "Khasra No",
     registryNo: "Registry No",
     constructedDate: "Constructed Date",
 };
