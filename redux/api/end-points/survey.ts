@@ -37,6 +37,9 @@ const survey = apiSlice.injectEndpoints({
                 url:'properties',
                 method:'POST',
                 body:data,
+                // headers:{
+                //     'Content-Type':'multipart/form-data',
+                // },
             }),
         }),
     }),

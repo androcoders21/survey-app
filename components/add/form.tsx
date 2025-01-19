@@ -121,8 +121,8 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       waterConnectionTypeOther: "",
       sourceOfWater: "",
       sourceOfWaterOther: "",
-      propertyFirstImage: { name: '', uri: '', type: '' },
-      propertySecondImage: { name: '', uri: '', type: '' },
+      propertyFirstImage: { name: '', uri: '', type: '',size:0 },
+      propertySecondImage: { name: '', uri: '', type: '',size:0 },
       latitude: "",
       longitude: "",
       supportingDocuments: [],
@@ -161,7 +161,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
-        if (typeof value === "string") {
+        if (typeof value === "object") {
           formData.append(key, value as any);
         }
         else if(key === "aadhaarPhoto" && value){
@@ -170,23 +170,19 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
             name: 'aadhaarPhoto.jpg',
             type: 'image/jpeg',
           }
-          // formData.append(key, aadhaarPhoto as any);
+          formData.append(key, aadhaarPhoto as any);
         }
-        else if(key === "propertyFirstImage" || key === "propertySecondImage"){
-            formData.append(key, '');
-        }
+
         else if(key === "isSameAsProperty"){
-          // formData.append(key,JSON.stringify(value))
-        } else{
+          formData.append(key,'')
+        } 
+        else{
           formData.append(key, value as any);
         }
       });
-      // formData.append("user_id", userId);
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-    }
+
       const response = await createSurvey(formData).unwrap();
-            console.log("Response",response);
+      console.log("Response",response);
       ToastAndroid.show("Survey created successfully", ToastAndroid.SHORT);
       router.replace({ pathname: '/(tabs)/main'});
       reset();

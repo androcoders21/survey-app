@@ -333,11 +333,13 @@ export const step7Schema = z.object({
         name: z.string().nonempty("File name is required"),
         uri: z.string().nonempty("File URI must be a valid URL"),
         type: z.string().nonempty("File type is required"),
+        size: z.number().positive("File size must be greater than 0")
     }),
     propertySecondImage: z.object({
         name: z.string().nonempty("File name is required"),
         uri: z.string().nonempty("File URI must be a valid URL"),
         type: z.string().nonempty("File type is required"),
+        size: z.number().positive("File size must be greater than 0")
     }),
     latitude: z.string().optional(),    
     longitude: z.string().optional(),
@@ -345,6 +347,7 @@ export const step7Schema = z.object({
         name: z.string().optional(),
         uri: z.string().optional(),
         type: z.string().optional(),
+        size: z.number().positive("File size must be greater than 0").optional(),
     }),).optional(),
     remark: z.string().optional(),
 });

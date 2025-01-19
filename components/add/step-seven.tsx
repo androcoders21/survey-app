@@ -33,6 +33,7 @@ interface ImageArgs {
     name: string;
     uri: string;
     type: string;
+    size: number;
 }
 
 const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
@@ -58,9 +59,9 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
         <Box>
             <Heading className='pb-3'>Property Photo:</Heading>
             <VStack space='lg' className='mb-3'>
-                <CapturePhoto handleImage={(value) => setValue("propertyFirstImage", { name: value.name, uri: value.uri, type: value.type })} label={propertyFirstImage ? propertyFirstImage?.name || 'Capture first photo *' : 'Capture first photo *'} />
+                <CapturePhoto handleImage={(value) => setValue("propertyFirstImage", { name: value.name, uri: value.uri, type: value.type,size:value.size })} label={propertyFirstImage ? propertyFirstImage?.name || 'Capture first photo *' : 'Capture first photo *'} />
                 {errors.propertyFirstImage?.name && <Text className="pl-2 text-red-500" size="xs">{errors?.propertyFirstImage?.name?.message}</Text>}
-                <CapturePhoto handleImage={(value) => setValue("propertySecondImage", { name: value.name, uri: value.uri, type: value.type })} label={propertySecondImage ? propertySecondImage?.name || 'Capture second photo *' : 'Capture second photo *'} />
+                <CapturePhoto handleImage={(value) => setValue("propertySecondImage", { name: value.name, uri: value.uri, type: value.type,size:value.size })} label={propertySecondImage ? propertySecondImage?.name || 'Capture second photo *' : 'Capture second photo *'} />
                 {errors.propertySecondImage?.name && <Text className="pl-2 text-red-500" size="xs">{errors?.propertySecondImage?.name?.message}</Text>}
             </VStack>
 
