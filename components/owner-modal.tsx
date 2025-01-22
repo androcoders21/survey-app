@@ -20,7 +20,7 @@ const ownerFields = {
     name: "Owner Name *",
     fatherName: "Father/Husband Name *",
     mobile: "Mobile No. *",
-    landline: "Landline No.",
+    // landline: "Landline No.",
     email: "Email",
 }
 

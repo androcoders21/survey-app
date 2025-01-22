@@ -1,31 +1,70 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import drafts from './dummyd';
-import { useRouter } from 'expo-router';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import { getDraftData } from '@/utils/helper';
+import { KeyValuePair } from '@react-native-async-storage/async-storage/lib/typescript/types';
+import { CombinedSurveyType } from '@/utils/validation-schema';
 
 const Draft = () => {
-  const router = useRouter();
+const [draftData,setDraftData] = React.useState<KeyValuePair[] | undefined>([]);
+const [isLoading,setIsLoading] = React.useState(true);
 
-  const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.item} onPress={() => router.push(`/draft/draftform?id=${item.id}`)}>
-      <Text style={styles.title}>Property No: {item.propertyNo}</Text>
+React.useEffect(()=>{
+  getDraftData().then((data)=>{
+    setDraftData(data ? [...data] : []);
+  }).catch((error)=>{
+    console.log(error);
+  }).finally(()=>{
+    setIsLoading(false);
+  });
+},[])
+
+  if(isLoading){
+    return (
+      <View style={styles.container}>
+        <Stack.Screen options={{
+          title: 'All Drafts',
+          headerTitle: "All Drafts",
+          headerShown: true,
+          headerTitleStyle: { fontWeight: '600' },
+        }} />
+        <Text>Loading...</Text>
+      </View>
+    )
+  }
+
+  const renderItem = ({ item }: { item: KeyValuePair }) => {
+    const key = item[0];
+    const valueString = item[1];
+
+  if (!valueString) {
+    return null; // Skip rendering this item
+  }
+
+  // Parse the JSON string
+  const value:CombinedSurveyType = JSON.parse(valueString);
+
+    return(
+    <TouchableOpacity activeOpacity={0.6} style={styles.item} onPress={() => router.push(`/draft/draftform?id=${key}`)}>
+      <Text style={styles.title}>Property No: {value?.propertyNo}</Text>
       <View style={styles.row}>
         <View style={styles.column}>
-          <Text style={styles.details}>Registry No: {item.registryNo}</Text>
-          <Text style={styles.details}>Constructed Date: {item.constructedDate}</Text>
-          <Text style={styles.details}>Respondent Name: {item.respondentName}</Text>
-          <Text style={styles.details}>Pincode: {item.pincode}</Text>
+          <Text style={styles.details}>Registry No: {value?.registryNo}</Text>
+          <Text style={styles.details}>Constructed Date: {value?.constructedDate}</Text>
+          <Text style={styles.details}>Respondent Name: {value?.respondentName}</Text>
+          <Text style={styles.details}>Pincode: {value?.pincode}</Text>
         </View>
         <View style={styles.column}>
-          <Text style={styles.details}>House No: {item.houseNo}</Text>
-          <Text style={styles.details}>Locality: {item.locality}</Text>
-          <Text style={styles.details}>Colony: {item.colony}</Text>
-          <Text style={styles.details}>City: {item.city}</Text>
+          <Text style={styles.details}>House No: {value?.houseNo}</Text>
+          <Text style={styles.details}>Locality: {value?.locality}</Text>
+          <Text style={styles.details}>Colony: {value?.colony}</Text>
+          <Text style={styles.details}>City: {value?.city}</Text>
         </View>
       </View>
     </TouchableOpacity>
-  );
+  )
+};
 
   return (
     <View style={styles.container}>
@@ -33,12 +72,12 @@ const Draft = () => {
         title: 'All Drafts',
         headerTitle: "All Drafts",
         headerShown: true,
-        headerTitleStyle: { fontWeight: '700' },
+        headerTitleStyle: { fontWeight: '600' },
       }} />
       <FlatList
-        data={drafts}
+        data={draftData}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item[0]}
       />
     </View>
   );

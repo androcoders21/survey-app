@@ -155,11 +155,11 @@ const StepFive = ({ control, errors, setValue }: StepFiveProps) => {
                             {fields.map((item, index) => (
                                 <TouchableOpacity key={item.id} activeOpacity={0.7} onPress={() => console.log('clicked')} onLongPress={() => handleLongPress(index)}>
                                     <TableRow className='py-1'>
-                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{floorData?.find((mainItem:FloorTypeType)=>mainItem.id.toString() === item.floorType)?.name || ""}</TableData>
-                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item.areaSqFt}</TableData>
-                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{usageTypeData?.find((mainItem:UsageType)=>mainItem.id.toString() === item.usageType)?.type_name || ""}</TableData>
-                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{usageFactorData.find((mainItem:FactorType)=>mainItem.id.toString() === item.usageFactor)?.name || ""}</TableData>
-                                        <TableData className='text-sm w-52 p-0 text-center align-middle'>{constructionTypeData.find((mainItem:ConstructionType)=>mainItem.id.toString() === item.constructionType)?.name || ""}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item.floorType === "Other" ? item.floorTypeOther : floorData?.find((mainItem:FloorTypeType)=>mainItem.id.toString() === item.floorType)?.name || ""}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item?.areaSqFt}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item.usageType === "Other" ? item.usageTypeOther : usageTypeData?.find((mainItem:UsageType)=>mainItem.id.toString() === item.usageType)?.type_name || ""}</TableData>
+                                        <TableData className='text-sm w-32 p-0 text-center align-middle'>{item.usageFactor === "Other" ? item.usageFactorOther : usageFactorData?.find((mainItem:FactorType)=>mainItem.id.toString() === item.usageFactor)?.name || ""}</TableData>
+                                        <TableData className='text-sm w-52 p-0 text-center align-middle'>{item.constructionType === "Other" ? item.constructionTypeOther : constructionTypeData?.find((mainItem:ConstructionType)=>mainItem.id.toString() === item.constructionType)?.name || ""}</TableData>
                                     </TableRow>
                                 </TouchableOpacity>
                             ))}

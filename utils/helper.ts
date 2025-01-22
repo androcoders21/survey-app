@@ -19,6 +19,27 @@ export const getFromLocal = async (key:string) => {
     }
 };
 
+export const saveDraftData = async (value:Object) => {
+  const key = `@formData${Date.now()}`
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(value));
+      return key;
+    } catch (e) {
+      console.log(e);
+    }
+}
+
+export const getDraftData = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const filteredKeys = keys.filter((key) => key.includes('@formData'));
+      const values = await AsyncStorage.multiGet(filteredKeys);
+      return values;
+    } catch(e) {
+      // error reading value
+    }
+}
+
 export const clearLocal = async () => {
     try {
       await AsyncStorage.clear()

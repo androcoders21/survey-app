@@ -9,13 +9,12 @@ import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragI
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack'
 import { CombinedSurveyType, Step6Type } from '@/utils/validation-schema';
-import { Control, Controller, FieldErrors, UseFormSetValue, useWatch } from 'react-hook-form';
+import { Control, Controller, FieldErrors, useFieldArray, UseFormSetValue, useWatch } from 'react-hook-form';
 import { useFetchUsageTypeQuery } from '@/redux/api/end-points/property-type';
 import { UsageType } from '@/utils/types';
 
 const formFields = {
     totalWaterConnection: "No. of Connection *",
-    waterConnectionId: "Water supply connection ID *",
 }
 
 interface StepSixProps {
@@ -26,7 +25,11 @@ interface StepSixProps {
 
 const StepSix = ({ control, errors, setValue }: StepSixProps) => {
     const { data: usageTypeData } = useFetchUsageTypeQuery();
-    const [isMuncipalWaterSupply, waterConnectionType, sourceOfWater, isMuncipalWasteService] = useWatch({ control, name: ["isMuncipalWaterSupply", "waterConnectionType", "sourceOfWater", "isMuncipalWasteService"] });
+    const [isMuncipalWaterSupply, waterConnectionType, sourceOfWater, isMuncipalWasteService, toiletType] = useWatch({ control, name: ["isMuncipalWaterSupply", "waterConnectionType", "sourceOfWater", "isMuncipalWasteService", "toiletType"] });
+    const handleId = (value: string) => {
+        console.log(value)
+        setValue("waterConnectionId", [value])
+    }
     return (
         <Box>
             <Heading className='pb-3'>Water Supply:</Heading>
@@ -71,12 +74,30 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                     </VStack>
                 ))}
                 <VStack space='xs' className='mb-3'>
-                    <Text size="sm" className="mb-1" bold>Type of Use *</Text>
+                    <Text size='sm' bold>Enter connection IDs by seperating ","</Text>
+                    <Controller
+                            name='waterConnectionId'
+                            control={control}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.waterConnectionId} isReadOnly={false}>
+                                    <InputField
+                                        className="text-sm"
+                                        onChange={(e) => setValue("waterConnectionId",[e.nativeEvent.text])}
+                                        value={value?.join(",") as string}
+                                        placeholder={`Enter connection ID eg. 1,2,3`}
+                                    />
+                                </Input>
+                            )}
+                        />
+                        {errors?.waterConnectionId && <Text className='text-red-500' size='xs'>{errors?.waterConnectionId?.message}</Text>}
+                </VStack>
+                <VStack space='xs' className='mb-3'>
+                    <Text size="sm" className="mb-1" bold>Water Connection Type *</Text>
                     <Controller
                         name='waterConnectionType'
                         control={control}
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <Select defaultValue={value ? usageTypeData?.find((mainItem:UsageType)=>mainItem.id.toString() === value)?.type_name : ""} isInvalid={!!errors.waterConnectionType} onValueChange={(data) => { setValue("waterConnectionType", data); console.log(data) }}>
+                            <Select defaultValue={value === "Other" ? value : value ? usageTypeData?.find((mainItem: UsageType) => mainItem.id.toString() === value)?.type_name : ""} isInvalid={!!errors.waterConnectionType} onValueChange={(data) => { setValue("waterConnectionType", data); console.log(data) }}>
                                 <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                     <SelectInput className='text-sm font-bold' placeholder="Select type of use" />
                                     <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -90,6 +111,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                         {usageTypeData?.map((item: UsageType) => (
                                             <SelectItem key={item.id} label={item.type_name} value={item.id.toString()} />
                                         ))}
+                                        <SelectItem label='Other' value='Other' />
                                     </SelectContent>
                                 </SelectPortal>
                             </Select>
@@ -98,7 +120,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                     {errors.waterConnectionType && <Text className="pl-2 text-red-500" size="xs">{errors?.waterConnectionType?.message}</Text>}
                 </VStack>
                 {waterConnectionType === "Other" && <VStack space='xs' className='mb-3' >
-                    <Text size='sm' bold>Type of Use Other *</Text>
+                    <Text size='sm' bold>Water Connection Type Other *</Text>
                     <Controller
                         name="waterConnectionTypeOther"
                         control={control}
@@ -124,7 +146,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                         name='sourceOfWater'
                         control={control}
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <Select isInvalid={!!errors.sourceOfWater} onValueChange={(data) => { setValue("sourceOfWater", data); console.log(data) }}>
+                            <Select defaultValue={value} isInvalid={!!errors.sourceOfWater} onValueChange={(data) => { setValue("sourceOfWater", data); console.log(data) }}>
                                 <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                     <SelectInput className='text-sm font-bold' placeholder="Select source of water" />
                                     <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -135,7 +157,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                         <SelectDragIndicatorWrapper>
                                             <SelectDragIndicator />
                                         </SelectDragIndicatorWrapper>
-                                        {["Government Tap", "Dug well","Borewell", "Other"].map((item) => (
+                                        {["Government Tap", "Dug well", "Borewell", "Other"].map((item) => (
                                             <SelectItem key={item} label={item} value={item} />
                                         ))}
                                     </SelectContent>
@@ -146,7 +168,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                     {errors.sourceOfWater && <Text className="pl-2 text-red-500" size="xs">{errors?.sourceOfWater?.message}</Text>}
                 </VStack>
                 {sourceOfWater === "Other" && <VStack space='xs' className='mb-3' >
-                    <Text size='sm' bold>Type of Use Other *</Text>
+                    <Text size='sm' bold>Source of Water Other *</Text>
                     <Controller
                         name="sourceOfWaterOther"
                         control={control}
@@ -172,7 +194,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                     name='toiletType'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select isInvalid={!!errors.toiletType} onValueChange={(data) => { setValue("toiletType", data); console.log(data) }}>
+                        <Select defaultValue={value} isInvalid={!!errors.toiletType} onValueChange={(data) => { setValue("toiletType", data); console.log(data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -183,7 +205,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                     <SelectDragIndicatorWrapper>
                                         <SelectDragIndicator />
                                     </SelectDragIndicatorWrapper>
-                                    {["Connected to municipal sewage system", "Connected to specific tank", "Connected to surface drains", "Pour flush pit latrine", "Dry/Bucket latrine", "No toilet"].map((item) => (
+                                    {["Connected to municipal sewage system", "Connected to specific tank", "Connected to surface drains", "Pour flush pit latrine", "Dry/Bucket latrine", "No toilet","Other"].map((item) => (
                                         <SelectItem key={item} label={item} value={item} />
                                     ))}
                                 </SelectContent>
@@ -193,6 +215,24 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                 />
                 {errors.toiletType && <Text className="pl-2 text-red-500" size="xs">{errors?.toiletType?.message}</Text>}
             </VStack>
+            {toiletType === "Other" && <VStack space='xs' className='mb-3' >
+                    <Text size='sm' bold>Water Connection Type Other *</Text>
+                    <Controller
+                        name="toiletTypeOther"
+                        control={control}
+                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.toiletTypeOther} isReadOnly={false}>
+                                <InputField
+                                    className="text-sm"
+                                    onChange={(e) => onChange(e.nativeEvent.text)}
+                                    value={value as string}
+                                    placeholder={`Enter Other`}
+                                />
+                            </Input>
+                        )}
+                    />
+                    {errors.toiletTypeOther && <Text className='text-red-500' size='xs'>{errors.toiletTypeOther.message}</Text>}
+                </VStack>}
             <Heading className='pb-3 pt-1'>Solid Waste Management:</Heading>
             <RadioGroup className='mb-2' value={isMuncipalWasteService} nativeID='isMuncipalWasteService' onChange={(value) => setValue("isMuncipalWasteService", value)}>
                 <HStack space="2xl">

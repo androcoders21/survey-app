@@ -8,7 +8,7 @@ import * as Location from 'expo-location';
 import { Box } from '@/components/ui/box'
 import { Heading } from '@/components/ui/heading'
 import { Text } from '@/components/ui/text'
-import { clearLocal, storeToLocal } from '@/utils/helper'
+import { clearLocal, getFromLocal, storeToLocal } from '@/utils/helper'
 import { useAppDispatch, useAppSelector } from '@/utils/hooks'
 import { setUserId, setUserToken } from '@/redux/slices/user'
 import { apiSlice } from '@/redux/api/api-slice'
@@ -83,6 +83,7 @@ const Main = () => {
         dispatch(apiSlice.util.resetApiState());
         router.replace('/signin');
     }
+
 
     useEffect(() => {
         if (refereshError) {

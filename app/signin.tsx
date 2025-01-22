@@ -31,7 +31,7 @@ const Signin = () => {
     const { formState: { errors }, control, handleSubmit } = useForm<LoginType>({
         resolver: zodResolver(loginSchema)
     })
-
+    console.log("SIGNIN");
     const onSubmit = async (data: LoginType) => {
         // console.log(data) 
         setIsSubmitting(true);

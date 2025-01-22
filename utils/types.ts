@@ -263,3 +263,10 @@ export interface ConstructionType {
     updated_at: string;
 }
 
+export interface FileObject {
+    uri: string;
+    name?: string; // Optional property
+    type?: string; // Optional property
+    size?: number; // Optional property (if needed)
+  }
+

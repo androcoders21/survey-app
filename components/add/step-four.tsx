@@ -38,9 +38,8 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
     const { data:yocData } = useFetchYearOfConstructionQuery();
     const { data:exemptionData } = useFetchExemptionQuery();
 
-    console.log("taxRateData",exemptionData);
 
-    const [propertyOwnership, situation, propertyUse, commercial, isExemptionApplicable, exemptionType] = useWatch({ control, name: ["propertyOwnership", "situation", "propertyUse", "commercial", "isExemptionApplicable", "exemptionType"] });
+    const [taxRateZone,propertyOwnership, situation, propertyUse, commercial, isExemptionApplicable, exemptionType,yearOfConstruction] = useWatch({ control, name: ["taxRateZone","propertyOwnership", "situation", "propertyUse", "commercial", "isExemptionApplicable", "exemptionType","yearOfConstruction"] });
     return (
         <Box className='pt-2'>
             <VStack space='xs' className='mb-3'>
@@ -49,7 +48,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                     name='taxRateZone'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? taxRateData?.find((item:RateZone)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.taxRateZone} onValueChange={(data) => { setValue("taxRateZone", data); console.log(data) }}>
+                        <Select defaultValue={value === "Other" ? "Other" : value ? taxRateData?.find((item:RateZone)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.taxRateZone} onValueChange={(data) => { setValue("taxRateZone", data); console.log(data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select tax rate" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -64,6 +63,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                                         {taxRateData?.map((rateZone: RateZone) => (
                                             <SelectItem key={rateZone.id} label={rateZone?.name} value={rateZone.id.toString()} />
                                         ))}
+                                        <SelectItem label="Other" value="Other" />
                                     </ScrollView>
                                 </SelectContent>
                             </SelectPortal>
@@ -72,6 +72,24 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                 />
                 {errors.taxRateZone && <Text className="pl-2 text-red-500" size="xs">{errors?.taxRateZone?.message}</Text>}
             </VStack>
+            {taxRateZone === "Other" &&  <VStack space='xs' className='mb-3'>
+                <Text size="sm" className="mb-1" bold>Current Tax Rate Other *</Text>
+                <Controller
+                    name='taxRateZoneOther'
+                    control={control}
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                        <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.taxRateZoneOther} isReadOnly={false}>
+                            <InputField
+                                className="text-sm"
+                                onChange={(e) => onChange(e.nativeEvent.text)}
+                                value={value as string}
+                                placeholder={`Enter current tax rate other`}
+                            />
+                        </Input>
+                    )}
+                />
+                {errors.taxRateZoneOther && <Text className="pl-2 text-red-500" size="xs">{errors?.taxRateZoneOther?.message}</Text>}
+            </VStack>}
 
             <VStack space='xs' className='mb-3'>
                 <Text size="sm" className="mb-1" bold>Property Ownership *</Text>
@@ -79,7 +97,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                     name='propertyOwnership'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? ownershipData?.find((item:PropertyOwnership)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.propertyOwnership} onValueChange={(data) => { setValue("propertyOwnership", data) }}>
+                        <Select defaultValue={value === "Other" ? "Other" : value ? ownershipData?.find((item:PropertyOwnership)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.propertyOwnership} onValueChange={(data) => { setValue("propertyOwnership", data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select ownership" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -129,7 +147,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                     name='situation'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? propertySituationData?.find((item:PropertySituation)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.situation} onValueChange={(data) => { setValue("situation", data) }}>
+                        <Select defaultValue={value === "Other" ? "Other" : value ? propertySituationData?.find((item:PropertySituation)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.situation} onValueChange={(data) => { setValue("situation", data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select situation" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -179,7 +197,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                     name='propertyUse'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? propertyUseData?.find((item:PropertyUses)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.propertyUse} onValueChange={(data) => { setValue("propertyUse", data) }}>
+                        <Select defaultValue={value === "Other" ? "Other" : value ? propertyUseData?.find((item:PropertyUses)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.propertyUse} onValueChange={(data) => { setValue("propertyUse", data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select property use" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -224,12 +242,12 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
             </VStack>}
 
             <VStack space='xs' className='mb-3'>
-                <Text size="sm" className="mb-1" bold>Commercial</Text>
+                <Text size="sm" className="mb-1" bold>Commercial *</Text>
                 <Controller
                     name='commercial'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? commercialData?.find((item:CommercialUses)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.commercial} onValueChange={(data) => { setValue("commercial", data) }}>
+                        <Select defaultValue={value === "NA" ? "NA" : value ? commercialData?.find((item:CommercialUses)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.commercial} onValueChange={(data) => { setValue("commercial", data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select commercial" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -280,7 +298,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                     name='yearOfConstruction'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select defaultValue={value ? yocData?.find((item:YearOfConstruction)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.yearOfConstruction} onValueChange={(data) => { setValue("yearOfConstruction", data) }}>
+                        <Select defaultValue={value === "Other" ? "Other" : value ? yocData?.find((item:YearOfConstruction)=>item.id.toString() === value)?.name  : ''} isInvalid={!!errors.yearOfConstruction} onValueChange={(data) => { setValue("yearOfConstruction", data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select Year of Construction" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -295,6 +313,7 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                                         {yocData?.map((item:YearOfConstruction) => (
                                             <SelectItem key={item.id} label={item.name} value={item.id.toString()} />
                                         ))}
+                                        <SelectItem label="Other" value="Other" />
                                     </ScrollView>
                                 </SelectContent>
                             </SelectPortal>
@@ -303,6 +322,24 @@ const StepFour = ({ control, errors, setValue }: StepFourProps) => {
                 />
                 {errors.yearOfConstruction && <Text className="pl-2 text-red-500" size="xs">{errors?.yearOfConstruction?.message}</Text>}
             </VStack>
+            {yearOfConstruction === "Other" &&  <VStack space='xs' className='mb-3'>
+                <Text size="sm" className="mb-1" bold>Year of Construction Other *</Text>
+                <Controller
+                    name='yearOfConstructionOther'
+                    control={control}
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                        <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.yearOfConstructionOther} isReadOnly={false}>
+                            <InputField
+                                className="text-sm"
+                                onChange={(e) => onChange(e.nativeEvent.text)}
+                                value={value as string}
+                                placeholder={`Enter yoc other`}
+                            />
+                        </Input>
+                    )}
+                />
+                {errors.yearOfConstructionOther && <Text className="pl-2 text-red-500" size="xs">{errors?.yearOfConstructionOther?.message}</Text>}
+            </VStack>}
 
 
             <RadioGroup className='mb-2' value={isExemptionApplicable} onChange={(value) => setValue("isExemptionApplicable", value)}>

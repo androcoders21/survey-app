@@ -27,7 +27,6 @@ const Index = () => {
   const [isLoggedIn,setIsLoggedIn] = React.useState<undefined | string>(undefined);
   const [isFetching,setIsFetching] = React.useState(true);
   const dispatch = useAppDispatch();
- 
 
 useEffect(() => {
   Promise.all([getFromLocal('@token'),getFromLocal('@userId')]).then(([token,userId])=>{
@@ -54,7 +53,6 @@ useEffect(() => {
     //     setIsFetching(false);
     //     });
     },[]);
-
 if(isFetching){
     return(
         <SafeAreaView style={styles.container}>

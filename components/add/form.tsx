@@ -13,8 +13,7 @@ import { useAppDispatch, useAppSelector } from '@/utils/hooks';
 import { router, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
 import { useFetchWardQuery } from '@/redux/api/end-points/ward';
-import Foundation from '@expo/vector-icons/Foundation';
-import { clearLocal } from '@/utils/helper';
+import { clearLocal, getDraftData, saveDraftData } from '@/utils/helper';
 import { setUserId, setUserToken } from '@/redux/slices/user';
 import { apiSlice, baseUrl } from '@/redux/api/api-slice';
 import { CombinedSurveyType, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema } from '@/utils/validation-schema';
@@ -26,6 +25,8 @@ import StepFive from './step-five';
 import StepSix from './step-six';
 import StepSeven from './step-seven';
 import axios from 'axios';
+import { FileObject } from '@/utils/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface FormProps {
   currentStep: number;
@@ -59,7 +60,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
   };
 
   const { control, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<CombinedSurveyType>({
-    resolver: hadelValidation(currentStep),
+    // resolver: hadelValidation(currentStep),
     defaultValues: {
       ulbNameCode: "",
       wardNo: "",
@@ -74,6 +75,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       slumId: "",
       respondentName: "",
       respondentRelationship: "",
+      respondentRelationshipOther: "",
       ownerDetails: [
       ],
       ownerAadhaarNumber: "",
@@ -116,13 +118,13 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       toiletType: "",
       isMuncipalWasteService: "yes",
       totalWaterConnection: "",
-      waterConnectionId: "",
+      waterConnectionId: [],
       waterConnectionType: "",
       waterConnectionTypeOther: "",
       sourceOfWater: "",
       sourceOfWaterOther: "",
-      propertyFirstImage: { name: '', uri: '', type: '',size:0 },
-      propertySecondImage: { name: '', uri: '', type: '',size:0 },
+      propertyFirstImage: { name: '', uri: '', type: '', size: 0 },
+      propertySecondImage: { name: '', uri: '', type: '', size: 0 },
       latitude: "",
       longitude: "",
       supportingDocuments: [],
@@ -143,13 +145,11 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       let location = await Location.getCurrentPositionAsync({ accuracy: 4 });
       setValue("latitude", location.coords.latitude.toString());
       setValue("longitude", location.coords.longitude.toString());
-      
+
     }
     getCurrentLocation();
   }, [])
 
-  const userId = useAppSelector(state => state.user.userId);
-  const userToken = useAppSelector(state => state.user.token)
 
   const onSubmit = async (data: any) => {
     if (currentStep !== 7) {
@@ -157,54 +157,30 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       handleNextStep();
       return;
     }
-    console.log("Last Step", data);
+    console.log("Last Step", getValues());
+    const values = getValues();
     try {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (typeof value === "object") {
-          formData.append(key, value as any);
-        }
-        else if(key === "aadhaarPhoto" && value){
-          const aadhaarPhoto = {
-            uri:value,
-            name: 'aadhaarPhoto.jpg',
-            type: 'image/jpeg',
-          }
-          formData.append(key, aadhaarPhoto as any);
-        }
-
-        else if(key === "isSameAsProperty"){
-          formData.append(key,'')
-        } 
-        else{
-          formData.append(key, value as any);
+      saveDraftData(values).then((isSaved) => {
+        console.log("Draft Saved", isSaved);
+        if (isSaved) {
+          ToastAndroid.show("Survey saved in drafts", ToastAndroid.SHORT);
+          router.replace({ pathname: '/(tabs)/main' });
+        }else{
+        ToastAndroid.show("Unable to save in draft", ToastAndroid.SHORT);
         }
       });
-
-      const response = await createSurvey(formData).unwrap();
-      console.log("Response",response);
-      ToastAndroid.show("Survey created successfully", ToastAndroid.SHORT);
-      router.replace({ pathname: '/(tabs)/main'});
-      reset();
-    } catch (error: any) {
-      console.log('Error',error);
-      if (error?.status === 401) {
-        handleLogout();
-        ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-      } else if (error && typeof error?.data?.message === "string") {
-        ToastAndroid.show(error?.data?.message, ToastAndroid.SHORT);
-      } else {
-        ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
-      }
+    } catch (error) {
+      console.log('Error', error);
     }
   };
 
   const handleLogout = () => {
-    clearLocal();
-    dispatch(setUserToken(""));
-    dispatch(setUserId(""));
-    dispatch(apiSlice.util.resetApiState());
-    router.replace('/signin');
+    clearLocal().then(() => {
+      dispatch(setUserToken(""));
+      dispatch(setUserId(""));
+      dispatch(apiSlice.util.resetApiState());
+      router.replace('/signin');
+    });
   };
 
   useFocusEffect(

@@ -138,7 +138,7 @@ export const step1Schema = z.object({
     wardNo: z.string().min(1, "Ward No is required"),
     nagarpalikaId: z.string().optional(),
     parcelNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    propertyNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    propertyNo: z.string().min(1, { message: "Minimum 1 character is required" }),
     electricityId: z.string().optional(),
     khasraNo: z.string().optional(),
     registryNo: z.string().optional(),
@@ -150,7 +150,7 @@ export const step1Schema = z.object({
 export const step2Schema = z.object({
     respondentName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     respondentRelationship: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    respondentRelationshipOther:z.string().optional(),
+    respondentRelationshipOther: z.string().optional(),
     ownerAadhaarNumber: z.string().optional()
         .refine((value) => value === undefined || value === "" || /^\d{12}$/.test(value), { message: "Aadhaar number must be 12 digits" }),
     aadhaarPhoto: z.string().optional(),
@@ -179,7 +179,7 @@ export const step2Schema = z.object({
 );
 
 export const step3Schema = z.object({
-    houseNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    houseNo: z.string().min(1, { message: "Minimum 1 characters are required" }),
     streetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     locality: z.string().min(3, { message: "Minimum 3 characters are required" }),
     colony: z.string().min(3, { message: "Minimum 3 characters are required" }),
@@ -187,7 +187,7 @@ export const step3Schema = z.object({
     city: z.string().min(3, { message: "Minimum 3 characters are required" }),
     pincode: z.string().min(6, "Pincode must be 6 digits").max(6, "Pincode must be 6 digits"),
     isSameAsProperty: z.boolean().optional(),
-    presentHouseNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentHouseNo: z.string().min(1, { message: "Minimum 1 characters are required" }),
     presentStreetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     presentLocality: z.string().min(3, { message: "Minimum 3 characters are required" }),
     presentColony: z.string().min(3, { message: "Minimum 3 characters are required" }),
@@ -196,7 +196,8 @@ export const step3Schema = z.object({
 });
 
 export const step4Schema = z.object({
-    taxRateZone: z.string().optional(),
+    taxRateZone: z.string().min(1, "Taxrate zone is required"),
+    taxRateZoneOther: z.string().optional(),
     propertyOwnership: z.string().min(1, "Property Ownership is required"),
     propertyOwnershipOther: z.string().optional(),
     situation: z.string().min(1, "Situation is required"),
@@ -205,11 +206,23 @@ export const step4Schema = z.object({
     propertyOther: z.string().optional(),
     commercial: z.string().optional(),
     commercialOther: z.string().optional(),
-    yearOfConstruction: z.string(),
+    yearOfConstruction: z.string().min(1, "Property Ownership is required"),
+    yearOfConstructionOther: z.string().optional(),
     isExemptionApplicable: z.string().optional(),
     exemptionType: z.string().optional(),
     exemptionTypeOther: z.string().optional(),
 }).refine(
+    (data) => {
+        if (data.taxRateZone === "Other" && !data.taxRateZoneOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Taxrate zone Other is required when 'Other' is selected",
+        path: ["taxRateZoneOther"], // Path to the field that will show the error
+    }
+).refine(
     (data) => {
         if (data.propertyOwnership === "Other" && !data.propertyOwnershipOther) {
             return false;
@@ -233,57 +246,69 @@ export const step4Schema = z.object({
         path: ["situationOther"],
     }
 )
-.refine(
-    (data) => {
-        // If propertyUse is "Other", propertyOther is required
-        if (data.propertyUse === "Other" && !data.propertyOther) {
-            return false;
+    .refine(
+        (data) => {
+            // If propertyUse is "Other", propertyOther is required
+            if (data.propertyUse === "Other" && !data.propertyOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Property Other is required when 'Other' is selected",
+            path: ["propertyOther"],
         }
-        return true;
-    },
-    {
-        message: "Property Other is required when 'Other' is selected",
-        path: ["propertyOther"],
-    }
-)
-.refine(
-    (data) => {
-        // If commercial is "Other", commercialOther is required
-        if (data.commercial === "NA" && !data.commercialOther) {
-            return false;
+    )
+    .refine(
+        (data) => {
+            // If commercial is "Other", commercialOther is required
+            if (data.commercial === "NA" && !data.commercialOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Commercial Other is required when 'Other' is selected",
+            path: ["commercialOther"],
         }
-        return true;
-    },
-    {
-        message: "Commercial Other is required when 'Other' is selected",
-        path: ["commercialOther"],
-    }
-).refine(
-    (data) => {
-        // If exemptionType is "Other", exemptionTypeOther is required
-        if (data.isExemptionApplicable === "yes" && !data.exemptionType) {
-            return false;
+    ).refine(
+        (data) => {
+            // If exemptionType is "Other", exemptionTypeOther is required
+            if (data.yearOfConstruction === "Other" && !data.yearOfConstructionOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Required",
+            path: ["yearOfConstructionOther"],
         }
-        return true;
-    },
-    {
-        message: "Exemption Type is required when 'Yes' is selected",
-        path: ["exemptionType"],
-    }
-)
-.refine(
-    (data) => {
-        // If exemptionType is "Other", exemptionTypeOther is required
-        if (data.isExemptionApplicable === "yes" && data.exemptionType === "Other" && !data.exemptionTypeOther) {
-            return false;
+    ).refine(
+        (data) => {
+            // If exemptionType is "Other", exemptionTypeOther is required
+            if (data.isExemptionApplicable === "yes" && !data.exemptionType) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Exemption Type is required when 'Yes' is selected",
+            path: ["exemptionType"],
         }
-        return true;
-    },
-    {
-        message: "Exemption Type Other is required when 'Other' is selected",
-        path: ["exemptionTypeOther"],
-    }
-);
+    )
+    .refine(
+        (data) => {
+            // If exemptionType is "Other", exemptionTypeOther is required
+            if (data.isExemptionApplicable === "yes" && data.exemptionType === "Other" && !data.exemptionTypeOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Exemption Type Other is required when 'Other' is selected",
+            path: ["exemptionTypeOther"],
+        }
+    );
 
 export const step5Schema = z.object({
     plotAreaSqFt: z.string().min(1, "Plot Area (Square Feet) is required"),
@@ -294,11 +319,15 @@ export const step5Schema = z.object({
     totalBuiltUpAreaSqMeter: z.string().optional(),
     floors: z.array(z.object({
         floorType: z.string().min(1, "Floor Type is required"),
+        floorTypeOther: z.string().optional(),
         areaSqFt: z.string(),
         areaSqMt: z.string(),
         usageType: z.string().min(1, "Other Area is required"),
+        usageTypeOther: z.string().optional(),
         usageFactor: z.string().min(1, "All Room is required"),
+        usageFactorOther: z.string().optional(),
         constructionType: z.string().min(1, "All Balcony is required"),
+        constructionTypeOther: z.string().optional(),
     })).min(1, "At least one floor is required"),
 }).refine(
     (data) => {
@@ -318,15 +347,82 @@ export const step5Schema = z.object({
 
 export const step6Schema = z.object({
     isMuncipalWaterSupply: z.string().min(1, "Municipal Water Supply is required"),
-    totalWaterConnection: z.string().optional(),
-    waterConnectionId: z.string().optional(),
+    totalWaterConnection: z.string().optional().refine((value) => value === undefined || value === "" || /^\d+$/.test(value), {
+        message: "Must be a number",
+    }),
+    waterConnectionId: z.array(z.string()).optional(),
     waterConnectionType: z.string().optional(),
     waterConnectionTypeOther: z.string().optional(),
     sourceOfWater: z.string().optional(),
     sourceOfWaterOther: z.string().optional(),
     toiletType: z.string().min(1, "Type of Toilet is required"),
+    toiletTypeOther: z.string().optional(),
     isMuncipalWasteService: z.string().min(1, "Solid Waste Service Available is required"),
-});
+}).refine((data) => {
+    if (data.isMuncipalWaterSupply === "yes" && !data.totalWaterConnection) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Total Water Connection is required",
+    path: ["totalWaterConnection"]
+}).refine((data)=>{
+    if (data.isMuncipalWaterSupply === "yes") {
+        if (!data.waterConnectionId || data.waterConnectionId.length === 0) {
+            return false;
+        }
+        const unique = new Set(data.waterConnectionId[0].split(','));
+        if (data.totalWaterConnection && Number(data.totalWaterConnection) !== unique.size) {
+            return false;
+        }
+    }
+    return true;
+},{
+    message: "Water Connection Id must be unique and equal to Total Water Connection",
+    path: ["waterConnectionId"]
+}).refine((data) => {
+    if (data.isMuncipalWaterSupply === "yes" && !data.waterConnectionType) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Water Connection Type is required",
+    path: ["waterConnectionType"]
+}).refine((data) => {
+    if (data.isMuncipalWaterSupply === "yes" && data.waterConnectionType === "Other" && !data.waterConnectionTypeOther) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Water Connection Type Other is required",
+    path: ["waterConnectionTypeOther"]
+}).refine((data) => {
+    if (data.isMuncipalWaterSupply === "no" && !data.sourceOfWater) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Source of Water is required",
+    path: ["sourceOfWater"]
+}).refine((data) => {
+    if (data.isMuncipalWaterSupply === "no" && data.sourceOfWater === "Other" && !data.sourceOfWaterOther) {
+        return false;
+    }
+    return true;
+}
+    , {
+        message: "Source of Water Other is required",
+        path: ["sourceOfWaterOther"]
+    }).refine((data) => {
+        if (data.toiletType === "Other" && !data.toiletTypeOther) {
+            return false;
+        }
+        return true;
+    },
+        {
+            message: "Type of Toilet Other is required",
+            path: ["toiletTypeOther"]
+        });
 
 export const step7Schema = z.object({
     propertyFirstImage: z.object({
@@ -341,7 +437,7 @@ export const step7Schema = z.object({
         type: z.string().nonempty("File type is required"),
         size: z.number().positive("File size must be greater than 0")
     }),
-    latitude: z.string().optional(),    
+    latitude: z.string().optional(),
     longitude: z.string().optional(),
     supportingDocuments: z.array(z.object({
         name: z.string().optional(),
@@ -354,12 +450,53 @@ export const step7Schema = z.object({
 
 export const floorDetailsSchema = z.object({
     floorType: z.string().min(1, "Floor Type is required"),
+    floorTypeOther: z.string().optional(),
     areaSqFt: z.string(),
     areaSqMt: z.string(),
     usageType: z.string().min(1, "Other Area is required"),
+    usageTypeOther: z.string().optional(),
     usageFactor: z.string().min(1, "All Room is required"),
+    usageFactorOther: z.string().optional(),
     constructionType: z.string().min(1, "All Balcony is required"),
-});
+    constructionTypeOther: z.string().optional(),
+}).refine((data) => {
+    if (data.floorType === "Other" && !data.floorTypeOther) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Required",
+    path: ["floorTypeOther"]
+}).refine(
+    (data) => {
+        if (data.usageType === "Other" && !data.usageTypeOther) {
+            return false;
+        }
+        return true;
+    },
+    {
+        message: "Required",
+        path: ["usageTypeOther"]
+    }).refine(
+        (data) => {
+            if (data.usageFactor === "Other" && !data.usageFactorOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Required",
+            path: ["usageFactorOther"]
+        }).refine((data) => {
+            if (data.constructionType === "Other" && !data.constructionTypeOther) {
+                return false;
+            }
+            return true;
+        }
+            , {
+                message: "Required",
+                path: ["constructionTypeOther"]
+            });
 
 export const ownerDetailsSchema = z.object({
     name: z.string().min(3, { message: "Minimum 3 characters are required" }),

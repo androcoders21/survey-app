@@ -1,27 +1,18 @@
 import React from 'react'
 import { Box } from '@/components/ui/box'
 import { Heading } from '@/components/ui/heading';
-import { HStack } from '@/components/ui/hstack';
-import { ChevronDownIcon, CircleIcon, Icon } from '@/components/ui/icon';
-import { Input, InputField } from '@/components/ui/input';
-import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger } from '@/components/ui/select';
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack'
 import { CombinedSurveyType, Step6Type } from '@/utils/validation-schema';
 import { Control, Controller, FieldErrors, useFieldArray, UseFormSetValue, useWatch } from 'react-hook-form';
 import CapturePhoto from '@/components/capture-photo';
-import { Image } from 'expo-image';
 import { Textarea, TextareaInput } from '../ui/textarea';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useAppSelector } from '@/utils/hooks';
 import { Pressable, StyleSheet } from 'react-native';
-import { set } from 'zod';
 import Entypo from '@expo/vector-icons/Entypo';
-
-const formFields = {
-    totalWaterConnection: "No. of Connection",
-    waterConnectionId: "Water supply connection ID",
-}
+import CustomImagePicker from '../image-picker';
 
 interface StepSevenProps {
     control: Control<CombinedSurveyType, any>;
@@ -83,7 +74,7 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
             </MapView>
 
             <Heading className='pb-3 pt-1'>Upload Supporting Documents:</Heading>
-            <CapturePhoto handleImage={(value) => handleDocument(value)} label={'Upload supporting documents'} />
+            <CustomImagePicker handleImage={(value) => handleDocument(value)} label={'Upload supporting documents'} />
             {fields.map((item, index) => (
                 <Box key={item.id} className='my-2 py-3 px-2 border border-slate-300 rounded-lg flex flex-row justify-between'>
                     <Text size='sm' bold>Document {index + 1}</Text>

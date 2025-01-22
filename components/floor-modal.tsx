@@ -30,6 +30,10 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
     const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<FloorDetailsType>({
         resolver: zodResolver(floorDetailsSchema),
     });
+    const [floorType, usageType, usageFactor, constructionType] = useWatch({
+        control,
+        name: ['floorType', 'usageType', 'usageFactor', 'constructionType']
+    });
     const onSubmit = (data: FloorDetailsType) => {
         console.log(data)
         append(data);
@@ -55,12 +59,12 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
         <Modal
             isOpen={showModal}
             onClose={handleClose}
-            size="md"
+            size="lg"
         >
             <ModalBackdrop />
-            <ModalContent>
+            <ModalContent className="bg-white rounded-2xl py-3 px-4">
                 <ModalHeader>
-                    <Heading size="md" className="text-typography-950">
+                    <Heading size="lg" className="text-typography-950">
                         Area Detail
                     </Heading>
                     <ModalCloseButton>
@@ -93,6 +97,7 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 {floorData?.map((floorItem: FloorTypeType) => (
                                                     <SelectItem key={floorItem?.id} label={floorItem?.name} value={floorItem.id.toString()} />
                                                 ))}
+                                                <SelectItem label="Other" value="Other" />
                                             </ScrollView>
                                         </SelectContent>
                                     </SelectPortal>
@@ -101,6 +106,24 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                         />
                         {errors.floorType && <Text className="pl-2 text-red-500" size="xs">{errors?.floorType?.message}</Text>}
                     </VStack>
+                    {floorType === "Other" && <VStack space='xs' className='mb-3'>
+                        <Text size="sm" className="mb-1" bold>Floor type Other *</Text>
+                        <Controller
+                            name='floorTypeOther'
+                            control={control}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.floorTypeOther} isReadOnly={false}>
+                                    <InputField
+                                        className="text-sm"
+                                        onChange={(e) => onChange(e.nativeEvent.text)}
+                                        value={value as string}
+                                        placeholder={`Enter floor type other`}
+                                    />
+                                </Input>
+                            )}
+                        />
+                        {errors.floorTypeOther && <Text className="pl-2 text-red-500" size="xs">{errors?.floorTypeOther?.message}</Text>}
+                    </VStack>}
                     <VStack space='xs' className='mb-3'>
                         <Text size='sm' bold>Area *</Text>
                         <Box className='flex flex-row justify-between'>
@@ -162,9 +185,10 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {usageTypeData?.map((item:UsageType) => (
+                                                {usageTypeData?.map((item: UsageType) => (
                                                     <SelectItem key={item.id} label={item.type_name} value={item.id.toString()} />
                                                 ))}
+                                                <SelectItem label="Other" value="Other" />
                                             </ScrollView>
                                         </SelectContent>
                                     </SelectPortal>
@@ -173,6 +197,25 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                         />
                         {errors.usageType && <Text className="pl-2 text-red-500" size="xs">{errors?.usageType?.message}</Text>}
                     </VStack>
+
+                    {usageType === "Other" && <VStack space='xs' className='mb-3'>
+                        <Text size="sm" className="mb-1" bold>Usage type Other *</Text>
+                        <Controller
+                            name='usageTypeOther'
+                            control={control}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.usageTypeOther} isReadOnly={false}>
+                                    <InputField
+                                        className="text-sm"
+                                        onChange={(e) => onChange(e.nativeEvent.text)}
+                                        value={value as string}
+                                        placeholder={`Enter usage type other`}
+                                    />
+                                </Input>
+                            )}
+                        />
+                        {errors.usageTypeOther && <Text className="pl-2 text-red-500" size="xs">{errors?.usageTypeOther?.message}</Text>}
+                    </VStack>}
 
                     <VStack space='xs' className='mb-3'>
                         <Text size="sm" bold>Usage Factor *</Text>
@@ -192,9 +235,10 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {usageFactorData?.map((item:FactorType) => (
+                                                {usageFactorData?.map((item: FactorType) => (
                                                     <SelectItem key={item.id} label={item.name} value={item.id.toString()} />
                                                 ))}
+                                                <SelectItem label="Other" value="Other" />
                                             </ScrollView>
                                         </SelectContent>
                                     </SelectPortal>
@@ -203,6 +247,25 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                         />
                         {errors.usageFactor && <Text className="pl-2 text-red-500" size="xs">{errors?.usageFactor?.message}</Text>}
                     </VStack>
+
+                    {usageFactor === "Other" && <VStack space='xs' className='mb-3'>
+                        <Text size="sm" className="mb-1" bold>Usage Factor type Other *</Text>
+                        <Controller
+                            name='usageFactorOther'
+                            control={control}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.usageFactorOther} isReadOnly={false}>
+                                    <InputField
+                                        className="text-sm"
+                                        onChange={(e) => onChange(e.nativeEvent.text)}
+                                        value={value as string}
+                                        placeholder={`Enter usage factor type other`}
+                                    />
+                                </Input>
+                            )}
+                        />
+                        {errors.usageFactorOther && <Text className="pl-2 text-red-500" size="xs">{errors?.usageFactorOther?.message}</Text>}
+                    </VStack>}
 
                     <VStack space='xs' className='mb-3'>
                         <Text size="sm" bold>Construction Type *</Text>
@@ -222,9 +285,10 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                                                 <SelectDragIndicator />
                                             </SelectDragIndicatorWrapper>
                                             <ScrollView style={{ width: Dimensions.get('window').width, height: 300 }}>
-                                                {constructionTypeData?.map((item:ConstructionType) => (
+                                                {constructionTypeData?.map((item: ConstructionType) => (
                                                     <SelectItem key={item.id} label={item.name} value={item.id.toString()} />
                                                 ))}
+                                                <SelectItem label="Other" value="Other" />
                                             </ScrollView>
                                         </SelectContent>
                                     </SelectPortal>
@@ -233,6 +297,25 @@ const FloorModal = ({ showModal, closeModal, append }: FloorModalProps) => {
                         />
                         {errors.constructionType && <Text className="pl-2 text-red-500" size="xs">{errors?.constructionType?.message}</Text>}
                     </VStack>
+
+                    {constructionType === "Other" && <VStack space='xs' className='mb-3'>
+                        <Text size="sm" className="mb-1" bold>Construction type Other *</Text>
+                        <Controller
+                            name='constructionTypeOther'
+                            control={control}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.constructionTypeOther} isReadOnly={false}>
+                                    <InputField
+                                        className="text-sm"
+                                        onChange={(e) => onChange(e.nativeEvent.text)}
+                                        value={value as string}
+                                        placeholder={`Enter construction type other`}
+                                    />
+                                </Input>
+                            )}
+                        />
+                        {errors.constructionTypeOther && <Text className="pl-2 text-red-500" size="xs">{errors?.constructionTypeOther?.message}</Text>}
+                    </VStack>}
 
                 </ModalBody>
                 <ModalFooter>
