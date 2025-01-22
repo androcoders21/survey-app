@@ -120,9 +120,13 @@ const StepTwo = ({ control, errors, setValue }: StepTwoProps) => {
                             <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.ownerAadhaarNumber} isReadOnly={false}>
                                 <InputField
                                     className="text-sm"
-                                    onChange={(e) => onChange(e.nativeEvent.text)}
+                                    onChange={(e) => {
+                                        onChange(e.nativeEvent.text)
+                                    }}
                                     value={value}
+                                    keyboardType='numeric'
                                     placeholder={`Enter owner aadhaar number`}
+                                    maxLength={12}
                                 />
                             </Input>
                         )}
@@ -168,7 +172,7 @@ const StepTwo = ({ control, errors, setValue }: StepTwoProps) => {
                     <Icon as={() => <MaterialIcons name="add-circle-outline" size={24} color="black" />} size="md" />
                 </TouchableOpacity>
             </Box>
-            <OwnerModal showModal={showModal} closeModal={()=>setShowModal(false)} append={append}/>
+            {showModal && <OwnerModal showModal={showModal} closeModal={()=>setShowModal(false)} append={append}/>}
         </Box>
     )
 }

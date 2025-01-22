@@ -19,6 +19,14 @@ export const getFromLocal = async (key:string) => {
     }
 };
 
+export const clearByKey = async (key:string) => {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch(e) {
+        // remove error
+    }
+};
+
 export const saveDraftData = async (value:Object) => {
   const key = `@formData${Date.now()}`
     try {
@@ -42,7 +50,7 @@ export const getDraftData = async () => {
 
 export const clearLocal = async () => {
     try {
-      await AsyncStorage.clear()
+      await AsyncStorage.clear();
     } catch(e) {
       // clear error
     }

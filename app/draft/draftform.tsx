@@ -4,7 +4,7 @@ import { Box } from '@/components/ui/box';
 import { router, Stack } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import MapView, { Marker } from 'react-native-maps';
-import { clearLocal, getFromLocal } from '@/utils/helper';
+import { clearByKey, clearLocal, getFromLocal } from '@/utils/helper';
 import { CombinedSurveyType, FloorDetailsType, OwnerDetailsType } from '@/utils/validation-schema';
 import { Table, TableBody, TableCaption, TableData, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CommercialUses, ConstructionType, ExemptionType, FactorType, FileObject, FloorTypeType, PropertyOwnership, PropertySituation, PropertyUses, RateZone, UsageType, YearOfConstruction } from '@/utils/types';
@@ -67,67 +67,72 @@ const draftData = () => {
     const longitude = parseFloat(draftData?.longitude || '0');
 
     const handleSubmit = async () => {
-        // try {
-        //     const formData = new FormData();
-        //     Object.entries(draftData).forEach(([key, value]) => {
-        //         console.log(key);
-        //         if (key === "supportingDocuments" && Array.isArray(value)) {
-        //             (value as FileObject[]).forEach((file, index) => {
-        //                 const fileObject = {
-        //                     uri: file.uri,
-        //                     name: file?.name || `supportingDocument_${index}.jpeg`, // Fallback name
-        //                     type: file?.type || 'image/jpeg', // Fallback type
-        //                 };
-        //                 formData.append(`supportingDocuments[${index}]`, fileObject as any);
-        //             });
-        //         } else if (key === "waterConnectionId") {
-        //             formData.append(key, value as any);
-        //         } else if (Array.isArray(value)) {
-        //             if (value.length) {
-        //                 formData.append(key, JSON.stringify(value));
-        //             }
-        //         }
-        //         else if (typeof value === "object") {
-        //             formData.append(key, value as any);
-        //         }
-        //         else if (key === "aadhaarPhoto" && value) {
-        //             const aadhaarPhoto = {
-        //                 uri: value,
-        //                 name: 'aadhaarPhoto.jpg',
-        //                 type: 'image/jpeg',
-        //             }
-        //             formData.append(key, aadhaarPhoto as any);
-        //         }
-        //         else if (typeof value === "string" || typeof value === "boolean") {
-        //             formData.append(key, String(value));
-        //         } else if (value) {
-        //             formData.append(key, String(value));
-        //         }
-        //     });
-        //     formData.append("user_id", userId);
-        //     formData.forEach((value, key) => {
-        //         if (key === "supportingDocuments") {
+        try {
+            const formData = new FormData();
+            Object.entries(draftData).forEach(([key, value]) => {
+                console.log(key);
+                if (key === "waterConnectionId") {
+                    if (Array.isArray(value) && value.length) {
+                        value.forEach((item, index) => {
+                            formData.append(`waterConnectionId[${index}]`, item as any);
+                        })
+                    }
+                } else if (key === "supportingDocuments" && Array.isArray(value)) {
+                    (value as FileObject[]).forEach((file, index) => {
+                        const fileObject = {
+                            uri: file.uri,
+                            name: file?.name || `supportingDocument_${index}.jpeg`, // Fallback name
+                            type: file?.type || 'image/jpeg', // Fallback type
+                        };
+                        formData.append(`supportingDocuments[${index}]`, fileObject as any);
+                    });
+                } else if (Array.isArray(value)) {
+                    if (value.length) {
+                        formData.append(key, JSON.stringify(value));
+                    }
+                }
+                else if (typeof value === "object") {
+                    formData.append(key, value as any);
+                }
+                else if (key === "aadhaarPhoto" && value) {
+                    const aadhaarPhoto = {
+                        uri: value,
+                        name: 'aadhaarPhoto.jpg',
+                        type: 'image/jpeg',
+                    }
+                    formData.append(key, aadhaarPhoto as any);
+                }
+                else if (typeof value === "string" || typeof value === "boolean") {
+                    formData.append(key, String(value));
+                } else if (value) {
+                    formData.append(key, String(value));
+                }
+            });
+            formData.append("user_id", userId);
+            formData.forEach((value, key) => {
+                if (key === "waterConnectionId" || key === "floors") {
 
-        //             console.log(key, value);
-        //         }
-        //     });
+                    console.log('waterConnectionId', key, value);
+                }
+            });
 
-        //     const response = await createSurvey(formData).unwrap();
-        //     console.log("Response", response);
-        //     ToastAndroid.show("Survey uploaded successfully", ToastAndroid.SHORT);
-        //     router.back();
-        //     // reset();
-        // } catch (error: any) {
-        //     console.log('Error', error);
-        //     if (error?.status === 401) {
-        //         handleLogout();
-        //         ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
-        //     } else if (error && typeof error?.data?.message === "string") {
-        //         ToastAndroid.show(error?.data?.message, ToastAndroid.SHORT);
-        //     } else {
-        //         ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
-        //     }
-        // }
+            const response = await createSurvey(formData).unwrap();
+            console.log("Response", response);
+            clearByKey(params.id).then(() => {
+                ToastAndroid.show("Survey uploaded successfully", ToastAndroid.SHORT);
+                router.replace('/(tabs)/main');
+            })
+        } catch (error: any) {
+            console.log('Error', error);
+            if (error?.status === 401) {
+                handleLogout();
+                ToastAndroid.show("Session expired, Please Re-login", ToastAndroid.LONG);
+            } else if (error && typeof error?.data?.message === "string") {
+                ToastAndroid.show(error?.data?.message, ToastAndroid.SHORT);
+            } else {
+                ToastAndroid.show("Unable to create survey", ToastAndroid.SHORT);
+            }
+        }
     };
 
     const handleLogout = () => {

@@ -1,14 +1,14 @@
 import { Icon } from '@/components/ui/icon'
 import { MaterialIcons } from '@expo/vector-icons'
 import { router, Stack, useFocusEffect } from 'expo-router'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Pressable, StyleSheet, SafeAreaView, ToastAndroid, PermissionsAndroid, TouchableOpacity } from 'react-native'
 import MapView, { LocalTile, MapMarker, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location';
 import { Box } from '@/components/ui/box'
 import { Heading } from '@/components/ui/heading'
 import { Text } from '@/components/ui/text'
-import { clearLocal, getFromLocal, storeToLocal } from '@/utils/helper'
+import { clearLocal, getDraftData, getFromLocal, storeToLocal } from '@/utils/helper'
 import { useAppDispatch, useAppSelector } from '@/utils/hooks'
 import { setUserId, setUserToken } from '@/redux/slices/user'
 import { apiSlice } from '@/redux/api/api-slice'
@@ -20,6 +20,7 @@ const Main = () => {
     const { data: tokenData, refetch: refetchRefereshToken, error: refereshError, isFetching: isTokenFetching } = useRefereshTokenQuery(undefined, { refetchOnFocus: true });
     const userToken = useAppSelector(state => state.user.token)
     const dispatch = useAppDispatch();
+    const [draftLength, setDraftLength] = React.useState<number>(0);
     const [currentLocation, setCurrentLocation] = React.useState<Location.LocationObjectCoords>({
         latitude: 0,
         longitude: 0,
@@ -32,13 +33,13 @@ const Main = () => {
     const mapRef = React.useRef<MapView>(null);
     const markerRef = React.useRef<MapMarker>(null);
 
-    useEffect(() => {
-        if (tokenData?.access_token) { // Assuming tokenData contains a property named `token`
-            storeToLocal('@token', tokenData?.access_token);
-            dispatch(setUserToken(tokenData?.access_token));
-            console.log("TOKEN REFRESHED", tokenData?.access_token);
-        }
-    }, [tokenData]);
+        useEffect(() => {
+            if (tokenData?.access_token) { // Assuming tokenData contains a property named `token`
+                storeToLocal('@token', tokenData?.access_token);
+                dispatch(setUserToken(tokenData?.access_token));
+                console.log("TOKEN REFRESHED", tokenData?.access_token);
+            }
+        }, [tokenData]);
 
     useFocusEffect(
         useCallback(() => {
@@ -54,6 +55,9 @@ const Main = () => {
                 console.log(location.coords);
                 setCurrentLocation(location.coords);
             }
+            getDraftData().then((data) => {
+                setDraftLength(data ? data.length : 0);
+            })
             refetchRefereshToken();
             getCurrentLocation();
         }, [])
@@ -93,7 +97,7 @@ const Main = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{headerStyle:{backgroundColor:'#05837a'}, headerShown: true, headerTitle: "SDV Survey", headerTitleStyle: { fontWeight: '600',color:'#ffffff' }, headerRight: () => <Pressable className='mr-4' onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={25} color="white" />} size="md" /></Pressable> }} />
+            <Stack.Screen options={{ headerStyle: { backgroundColor: '#05837a' }, headerShown: true, headerTitle: "SDV Survey", headerTitleStyle: { fontWeight: '600', color: '#ffffff' }, headerRight: () => <Pressable className='mr-4' onPress={handleLogout}><Icon as={() => <MaterialIcons name="logout" size={25} color="white" />} size="md" /></Pressable> }} />
             {currentLocation.latitude === 0 ? <Box style={styles.map} className='justify-center items-center'>
                 <Text className='text-center px-3'>Attempting to fetch your location. Please turn on location services if they are disabled.</Text>
                 <ButtonSpinner size={40} />
@@ -111,7 +115,7 @@ const Main = () => {
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
             >
-                 {/* <Marker key='myMarker' draggable coordinate={{latitude:currentLocation.latitude,longitude:currentLocation.longitude}} ref={markerRef}/> */}
+                {/* <Marker key='myMarker' draggable coordinate={{latitude:currentLocation.latitude,longitude:currentLocation.longitude}} ref={markerRef}/> */}
             </MapView>
             }
             <Box className='w-full pt-6 border-t border-slate-300 px-6' style={styles.bottomContainer}>
@@ -120,8 +124,14 @@ const Main = () => {
                     <Text size='sm'>Create New Property Survey</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => router.navigate('/draft/draft')} activeOpacity={0.7} className='border w-full bg-gray-200 border-black-300 mt-6 py-1.5 px-4 rounded-lg'>
-                    <Heading className='pb-1'>Drafts Survey</Heading>
-                    <Text size='sm'>Update edit local survey data</Text>
+                    <Box className='flex flex-row justify-between items-center'>
+                        <Box><Heading className='pb-1'>Drafts Data</Heading>
+                            <Text size='sm'>Update edit local survey data</Text>
+                        </Box>
+                        <Box className='bg-gray-800 rounded-full h-7 w-7 flex justify-center items-center'>
+                            <Text className='text-white'>{draftLength}</Text>
+                        </Box>
+                    </Box>
                 </TouchableOpacity>
             </Box>
 

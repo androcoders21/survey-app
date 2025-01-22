@@ -219,7 +219,7 @@ const StepFive = ({ control, errors, setValue }: StepFiveProps) => {
                 </Box>
                 {errors.totalBuiltUpAreaSqFt && <Text className='text-red-500' size='xs'>{errors?.totalBuiltUpAreaSqFt?.message}</Text>}
             </VStack>
-            <FloorModal showModal={showModal} closeModal={() => setShowModal(false)} append={append} />
+            {showModal && <FloorModal showModal={showModal} closeModal={() => setShowModal(false)} append={append} />}
         </Box>
     )
 }

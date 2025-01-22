@@ -73,8 +73,8 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
                 {isMapReady && <Marker draggable coordinate={{ latitude: Number(latitude) || 26.4777283, longitude: Number(longitude) || 80.3988467 }} />}
             </MapView>
 
-            <Heading className='pb-3 pt-1'>Upload Supporting Documents:</Heading>
-            <CustomImagePicker handleImage={(value) => handleDocument(value)} label={'Upload supporting documents'} />
+            <Heading className='pb-3 pt-1 mt-2'>Upload Supporting Documents:</Heading>
+            <CustomImagePicker handleImage={(value) => handleDocument(value)} label={'Select File...'} />
             {fields.map((item, index) => (
                 <Box key={item.id} className='my-2 py-3 px-2 border border-slate-300 rounded-lg flex flex-row justify-between'>
                     <Text size='sm' bold>Document {index + 1}</Text>

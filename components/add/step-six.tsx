@@ -25,10 +25,13 @@ interface StepSixProps {
 
 const StepSix = ({ control, errors, setValue }: StepSixProps) => {
     const { data: usageTypeData } = useFetchUsageTypeQuery();
-    const [isMuncipalWaterSupply, waterConnectionType, sourceOfWater, isMuncipalWasteService, toiletType] = useWatch({ control, name: ["isMuncipalWaterSupply", "waterConnectionType", "sourceOfWater", "isMuncipalWasteService", "toiletType"] });
-    const handleId = (value: string) => {
-        console.log(value)
-        setValue("waterConnectionId", [value])
+    const [isMuncipalWaterSupply, waterConnectionType, sourceOfWater, isMuncipalWasteService, toiletType,totalWaterConnection,waterConnectionId] = useWatch({ control, name: ["isMuncipalWaterSupply", "waterConnectionType", "sourceOfWater", "isMuncipalWasteService", "toiletType","totalWaterConnection","waterConnectionId"] });
+
+    const handleId = (value: string,index:number) => {
+        const temp = [...waterConnectionId];
+        temp[index] = value;
+        console.log(temp);
+        setValue("waterConnectionId",temp);
     }
     return (
         <Box>
@@ -63,7 +66,10 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                                     <InputField
                                         className="text-sm"
                                         keyboardType={key === "totalWaterConnection" ? "number-pad" : "default"}
-                                        onChange={(e) => onChange(e.nativeEvent.text)}
+                                        onChange={(e) => {
+                                            onChange(e.nativeEvent.text);
+                                            setValue("waterConnectionId",[]);
+                                        }}
                                         value={value as string}
                                         placeholder={`Enter ${heading}`}
                                     />
@@ -73,24 +79,21 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                         {errors[key as keyof Step6Type] && <Text className='text-red-500' size='xs'>{(errors[key as keyof Step6Type] as any)?.message}</Text>}
                     </VStack>
                 ))}
-                <VStack space='xs' className='mb-3'>
-                    <Text size='sm' bold>Enter connection IDs by seperating ","</Text>
-                    <Controller
-                            name='waterConnectionId'
-                            control={control}
-                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                {totalWaterConnection && Array.from({ length: Number(totalWaterConnection) }).map((_, index) => (
+                    <VStack space='xs' className='mb-3' key={index}>
+                        <Text size='sm' bold>Enter connection ID {index + 1}</Text>
+
                                 <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.waterConnectionId} isReadOnly={false}>
                                     <InputField
                                         className="text-sm"
-                                        onChange={(e) => setValue("waterConnectionId",[e.nativeEvent.text])}
-                                        value={value?.join(",") as string}
-                                        placeholder={`Enter connection ID eg. 1,2,3`}
+                                        onChange={(e) => handleId(e.nativeEvent.text,index)}
+                                        value={waterConnectionId[index]}
+                                        placeholder={`Enter connection ID`}
                                     />
                                 </Input>
-                            )}
-                        />
                         {errors?.waterConnectionId && <Text className='text-red-500' size='xs'>{errors?.waterConnectionId?.message}</Text>}
-                </VStack>
+                    </VStack>
+                ))}
                 <VStack space='xs' className='mb-3'>
                     <Text size="sm" className="mb-1" bold>Water Connection Type *</Text>
                     <Controller

@@ -47,7 +47,7 @@ React.useEffect(()=>{
 
     return(
     <TouchableOpacity activeOpacity={0.6} style={styles.item} onPress={() => router.push(`/draft/draftform?id=${key}`)}>
-      <Text style={styles.title}>Property No: {value?.propertyNo}</Text>
+      <Text style={styles.title}>Parcel No: {value?.parcelNo || "NA"}</Text>
       <View style={styles.row}>
         <View style={styles.column}>
           <Text style={styles.details}>Registry No: {value?.registryNo}</Text>

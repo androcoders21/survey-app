@@ -75,7 +75,7 @@ const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {
                                             onChange={(e) => onChange(e.nativeEvent.text)}
                                             value={value}
                                             placeholder={`Enter ${heading}`}
-                                            multiline={key === "remarks"}
+                                            maxLength={key === "mobile" ? 10 : undefined}
                                         />
                                     </Input>
                                 )}

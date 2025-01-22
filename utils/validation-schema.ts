@@ -350,7 +350,7 @@ export const step6Schema = z.object({
     totalWaterConnection: z.string().optional().refine((value) => value === undefined || value === "" || /^\d+$/.test(value), {
         message: "Must be a number",
     }),
-    waterConnectionId: z.array(z.string()).optional(),
+    waterConnectionId: z.array(z.string()),
     waterConnectionType: z.string().optional(),
     waterConnectionTypeOther: z.string().optional(),
     sourceOfWater: z.string().optional(),
@@ -366,12 +366,13 @@ export const step6Schema = z.object({
 }, {
     message: "Total Water Connection is required",
     path: ["totalWaterConnection"]
-}).refine((data)=>{
+})
+.refine((data)=>{
     if (data.isMuncipalWaterSupply === "yes") {
         if (!data.waterConnectionId || data.waterConnectionId.length === 0) {
             return false;
         }
-        const unique = new Set(data.waterConnectionId[0].split(','));
+        const unique = new Set(data.waterConnectionId.filter((item) => item));
         if (data.totalWaterConnection && Number(data.totalWaterConnection) !== unique.size) {
             return false;
         }
@@ -380,7 +381,8 @@ export const step6Schema = z.object({
 },{
     message: "Water Connection Id must be unique and equal to Total Water Connection",
     path: ["waterConnectionId"]
-}).refine((data) => {
+})
+.refine((data) => {
     if (data.isMuncipalWaterSupply === "yes" && !data.waterConnectionType) {
         return false;
     }

@@ -14,6 +14,7 @@ import { Control, Controller, FieldErrors, UseFormGetValues, UseFormSetValue, us
 import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MonthYearPicker from './month-year-picker';
 
 const formFields = {
     nagarpalikaId: "E-Nagarpalika ID",
@@ -34,14 +35,10 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
     const { isFetching, data: wardData, error } = useFetchWardQuery();
     const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
     const [isSlum, constructedDate] = useWatch({ control, name: ["isSlum", "constructedDate"] });
-    const handleDate = (event: DateTimePickerEvent, date: Date | undefined) => {
-        console.log(event.type, date);
-        if (event.type === "set") {
-            setValue("constructedDate", date?.toDateString());
-            setDatePickerVisibility(false);
-        } else {
-            setDatePickerVisibility(false);
-        }
+
+    const handleDate = (month:string,year:number) => {
+        console.log(month,year);
+        setValue("constructedDate",`${month} ${year}`);
     }
     return (
         <Box className='pt-2'>
@@ -117,8 +114,9 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
 
             <VStack space='xs' className='mb-3'>
                 <Text size='sm' bold>Construction Date</Text>
-                {isDatePickerVisible && <RNDateTimePicker display='spinner' mode='date' maximumDate={new Date()} onChange={(event: DateTimePickerEvent, date: Date|undefined)=>handleDate(event,date)} value={new Date()}
-                />}
+                {/* {isDatePickerVisible && <RNDateTimePicker display='spinner' mode='date' maximumDate={new Date()} onChange={(event: DateTimePickerEvent, date: Date|undefined)=>handleDate(event,date)} value={new Date()}
+                />} */}
+                <MonthYearPicker open={isDatePickerVisible} onClose={()=>setDatePickerVisibility(false)} onConfirm={handleDate}/>
                     <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.constructedDate} isReadOnly={true}>
                         <InputField
                             className="text-sm"

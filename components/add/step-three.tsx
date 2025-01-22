@@ -80,6 +80,7 @@ const StepThree = ({ control, errors, setValue, getValues }: StepThreeProps) => 
                                     onChange={(e) => onChange(e.nativeEvent.text)}
                                     value={value as string}
                                     placeholder={`Enter ${heading}`}
+                                    maxLength={key === "pincode" ? 6 : undefined}
                                 />
                             </Input>
                         )}
@@ -107,6 +108,7 @@ const StepThree = ({ control, errors, setValue, getValues }: StepThreeProps) => 
                                     onChange={(e) => onChange(e.nativeEvent.text)}
                                     value={value as string}
                                     placeholder={`Enter ${heading}`}
+                                    maxLength={key === "presentPincode" ? 6 : undefined}
                                 />
                             </Input>
                         )}
