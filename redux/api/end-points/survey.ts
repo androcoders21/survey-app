@@ -1,4 +1,3 @@
-import { getFromLocal } from "@/utils/helper";
 import { apiSlice } from "../api-slice";
 
 const survey = apiSlice.injectEndpoints({
@@ -37,12 +36,15 @@ const survey = apiSlice.injectEndpoints({
                 url:'properties',
                 method:'POST',
                 body:data,
-                // headers:{
-                //     'Content-Type':'multipart/form-data',
-                // },
+            }),
+        }),
+        fetchPropertyById:builder.query<any,{id:string}>({
+            query:({id})=>({
+                url:`properties?id=${id}`,
+                method:'GET',
             }),
         }),
     }),
 });
 
-export const {useFetchSurveysQuery,useCreateSurveyMutation,useFetchUserServeyQuery,useUpdateSurveyMutation,useCreatePropertyMutation} = survey;
+export const {useFetchSurveysQuery,useCreateSurveyMutation,useFetchUserServeyQuery,useUpdateSurveyMutation,useCreatePropertyMutation,useFetchPropertyByIdQuery} = survey;

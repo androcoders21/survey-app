@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Modal, ModalBackdrop, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from '@/components/ui/modal';
-import { Button, ButtonText } from '../ui/button';
-import { Heading } from '../ui/heading';
-import { CloseIcon, Icon } from '../ui/icon';
-import { Box } from '../ui/box';
+import { Button, ButtonText } from './ui/button';
+import { Heading } from './ui/heading';
+import { CloseIcon, Icon } from './ui/icon';
+import { Box } from './ui/box';
 
 interface MonthYearPickerProps {
   open: boolean;
@@ -22,7 +22,7 @@ const MonthYearPicker = ({ open, onClose, onConfirm }: MonthYearPickerProps) => 
   const [year, setYear] = useState<number>(new Date().getFullYear());
 
   // Generate an array of years (current year - 5 to current year + 4)
-  const years: number[] = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - 100 + i);
+  const years: number[] = Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - 100 + i);
 
   const handleConfirm = () => {
     onConfirm(month, year);

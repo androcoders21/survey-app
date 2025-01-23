@@ -56,6 +56,15 @@ export const clearLocal = async () => {
     }
 }
 
+export const clearSession = async () => {
+    try {
+      await AsyncStorage.removeItem('@token');
+      await AsyncStorage.removeItem('@userId');
+    } catch(e) {
+        // remove error
+    }
+}
+
 export const formatDate = (isoDate: string): string => {
   const date = new Date(isoDate);
 

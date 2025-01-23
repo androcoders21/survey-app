@@ -4,7 +4,7 @@ import { Box } from '@/components/ui/box';
 import { router, Stack } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import MapView, { Marker } from 'react-native-maps';
-import { clearByKey, clearLocal, getFromLocal } from '@/utils/helper';
+import { clearByKey, clearSession, getFromLocal } from '@/utils/helper';
 import { CombinedSurveyType, FloorDetailsType, OwnerDetailsType } from '@/utils/validation-schema';
 import { Table, TableBody, TableCaption, TableData, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CommercialUses, ConstructionType, ExemptionType, FactorType, FileObject, FloorTypeType, PropertyOwnership, PropertySituation, PropertyUses, RateZone, UsageType, YearOfConstruction } from '@/utils/types';
@@ -120,7 +120,7 @@ const draftData = () => {
             console.log("Response", response);
             clearByKey(params.id).then(() => {
                 ToastAndroid.show("Survey uploaded successfully", ToastAndroid.SHORT);
-                router.replace('/(tabs)/main');
+                router.back();
             })
         } catch (error: any) {
             console.log('Error', error);
@@ -136,7 +136,7 @@ const draftData = () => {
     };
 
     const handleLogout = () => {
-        clearLocal().then(() => {
+        clearSession().then(() => {
             dispatch(setUserToken(""));
             dispatch(setUserId(""));
             dispatch(apiSlice.util.resetApiState());
@@ -206,7 +206,7 @@ const draftData = () => {
                     <Text style={styles.details}>E-nagarpalika Id: {draftData?.nagarpalikaId}</Text>
                     <Text style={styles.details}>Ward No.: {draftData?.wardNo}</Text>
                     <Text style={styles.details}>Parcel No.: {draftData?.parcelNo}</Text>
-                    <Text style={styles.details}>Property No.: {draftData?.propertyNo}</Text>
+                    <Text style={styles.details}>Property No/Unit No.: {draftData?.propertyNo}</Text>
                     <Text style={styles.details}>Electricity Id: {draftData?.electricityId}</Text>
                     <Text style={styles.details}>Khasra No.: {draftData?.khasraNo}</Text>
                     <Text style={styles.details}>Registry No.: {draftData?.registryNo}</Text>
@@ -272,7 +272,7 @@ const draftData = () => {
 
                 {/* Municipal Supply */}
                 <Box style={styles.item}>
-                    <Text style={styles.sectionTitle}>Municipal Supply</Text>
+                    <Text style={styles.sectionTitle}>Municipal / Town Supply</Text>
                     <Text style={styles.details}>Municipal Water Supply Connection: {draftData?.isMuncipalWaterSupply}</Text>
                     {draftData?.isMuncipalWaterSupply === "yes" && <>
                         <Text style={styles.details}>No. of Connection: {draftData?.totalWaterConnection}</Text>
@@ -326,6 +326,7 @@ const draftData = () => {
                     isDisabled={isLoading}
                     className='h-12 rounded-xl w-40 mx-2'
                     variant='outline'
+                    onPress={() => router.push(`/form/new-edit?id=${params.id}`)}
                 >
                     <ButtonText className='text-center'>
                         Edit

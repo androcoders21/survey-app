@@ -25,7 +25,7 @@ const ownerFields = {
 }
 
 const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {
-    const { control, handleSubmit, formState: { errors }, reset, } = useForm<OwnerDetailsType>({
+    const { control, handleSubmit, formState: { errors }, reset, setFocus } = useForm<OwnerDetailsType>({
         resolver: zodResolver(ownerDetailsSchema),
     });
     const onSubmit = (data: OwnerDetailsType) => {
@@ -76,6 +76,9 @@ const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {
                                             value={value}
                                             placeholder={`Enter ${heading}`}
                                             maxLength={key === "mobile" ? 10 : undefined}
+                                            returnKeyType='next'
+                                            onSubmitEditing={() => setFocus(key === "email" ? "name" : key === "landline" ? "email" : "landline")}
+                                            
                                         />
                                     </Input>
                                 )}

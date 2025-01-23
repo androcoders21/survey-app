@@ -1,27 +1,17 @@
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heading } from '@/components/ui/heading';
 import { Box } from '@/components/ui/box';
-import { HStack } from '@/components/ui/hstack';
-import { clearLocal, formatDate, storeToLocal } from '@/utils/helper';
-import { useFetchSurveysQuery, useFetchUserServeyQuery } from '@/redux/api/end-points/survey';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Icon } from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
+import { clearSession, storeToLocal } from '@/utils/helper';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect } from 'react';
 import { useRefereshTokenQuery } from '@/redux/api/end-points/user';
 import { useAppDispatch, useAppSelector } from '@/utils/hooks';
 import { setUserId, setUserToken } from '@/redux/slices/user';
-import { set } from 'react-hook-form';
 import { apiSlice, baseUrl } from '@/redux/api/api-slice';
-import { SurveyType } from '@/utils/validation-schema';
 import { PressTypes, SurveyDetailsType } from '@/utils/types';
 import { setSlectedSurvey } from '@/redux/slices/survey';
-import { Feather } from '@expo/vector-icons';
-import { Divider } from '@/components/ui/divider';
 import axios from "axios";
 
 export default function HomeScreen() {
@@ -54,11 +44,9 @@ export default function HomeScreen() {
           "Accept": "application/json"
         }
       });
-      // console.log("RESPONSE", response.data);
-      setAllSurveys(response?.data);
-      // setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
-      // setTotalPages(response?.data?.survey_forms?.last_page || 1);
-      // setPage(1);
+      setAllSurveys(response?.data?.data || []);
+      setTotalPages(response?.data?.last_page || 1);
+      setPage(1);
     } catch (error: any) {
       if (error?.response?.status === 401) {
         handleLogout()
@@ -79,7 +67,7 @@ export default function HomeScreen() {
           "Accept": "application/json"
         }
       });
-      setAllSurveys((prevData) => ([...prevData, ...response?.data?.survey_forms?.data]));
+      setAllSurveys((prevData) => ([...prevData, ...response?.data?.data || []]));
     } catch (error: any) {
       if (error?.response?.status === 401) {
         handleLogout()
@@ -105,11 +93,13 @@ export default function HomeScreen() {
   );
 
   const handleLogout = () => {
-    clearLocal();
+    clearSession().then(() => {
+      console.log("Session Cleared");
     dispatch(setUserToken(""));
     dispatch(setUserId(""));
     dispatch(apiSlice.util.resetApiState());
     router.replace('/signin');
+    });
   }
 
   const handleView = (item: SurveyDetailsType, type: PressTypes) => {
@@ -154,8 +144,8 @@ export default function HomeScreen() {
   // };
 
    const renderItem = ({ item }: { item: any }) => (
-      <TouchableOpacity activeOpacity={0.7} style={styles.item} onPress={() => router.push(`/details/survey`)}>
-        <Text style={styles.title}>Property No: {item?.propertyNo || "NA"}</Text>
+      <TouchableOpacity activeOpacity={0.7} style={styles.item} className='mx-3' onPress={() => router.push(`/details/survey?id=${item.id}`)}>
+        <Text style={styles.title}>Parcel No: {item?.parcelNo || "NA"}</Text>
         <View style={styles.row}>
           <View style={styles.column}>
             <Text style={styles.details}>Registry No: {item?.registryNo || "NA"}</Text>
@@ -175,11 +165,11 @@ export default function HomeScreen() {
 
   const handleLoadMore = () => {
     console.log("LOAD MORE");
-    // console.log("PAGE--->", page, "TOTAL PAGES---->", totalPages);
-    // if (isFetching || isLoading || page > totalPages) return;
-    // setIsLoading(true);
-    // fetchMoreSurvey(page + 1);
-    // setPage((prevPage) => prevPage + 1);
+    console.log("PAGE--->", page, "TOTAL PAGES---->", totalPages);
+    if (isFetching || isLoading || page > totalPages) return;
+    setIsLoading(true);
+    fetchMoreSurvey(page + 1);
+    setPage((prevPage) => prevPage + 1);
   }
 
   return (
@@ -187,7 +177,7 @@ export default function HomeScreen() {
       <Box className='bg-white relative w-full py-3'>
         <Heading size='2xl' className='text-center'>Surveys</Heading>
       </Box>
-      {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full py-2 px-3'>
+      {isFetching ? <Box style={styles.container}><ActivityIndicator size={'large'} /></Box> : <Box className='w-full py-2'>
         <FlatList
           contentContainerStyle={{ paddingBottom: 50 }}
           keyExtractor={(item, index) => item?.id?.toString() || index.toString()}

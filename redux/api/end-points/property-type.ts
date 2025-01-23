@@ -28,7 +28,7 @@ const propertyType = apiSlice.injectEndpoints({
             query:()=>'property-ownerships',
         }),
         fetchPropertySituation:builder.query<any,void>({
-            query:()=>'property-owner-sections',
+            query:()=>'situations',
         }),
         fetchPropertyUses:builder.query<any,void>({
             query:()=>'property-uses',

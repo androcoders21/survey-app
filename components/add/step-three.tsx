@@ -15,7 +15,7 @@ import { Control, Controller, FieldErrors, UseFormGetValues, UseFormSetValue, us
 import { Dimensions, ScrollView } from 'react-native';
 
 const formFields1 = {
-    houseNo: "House No./Plot/Building/Apartment No. *",
+    houseNo: "House No./Plot/Building/Apartment No.",
     streetNoName: "Street No./Name *",
     locality: "Locality *",
     colony: "Colony *",
@@ -48,7 +48,7 @@ const StepThree = ({ control, errors, setValue, getValues }: StepThreeProps) => 
 
     const handleCheckBox = (value: boolean) => {
         if (value) {
-            setValue('presentHouseNo', getValues('houseNo'))
+            setValue('presentHouseNo', getValues('houseNo') || '')
             setValue('presentStreetNoName', getValues('streetNoName'))
             setValue('presentLocality', getValues('locality'))
             setValue('presentColony', getValues('colony'))

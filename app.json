@@ -43,7 +43,7 @@
           "image": "./assets/images/splash.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
-          "imageWidth": 200
+          "imageWidth": 300
         }
       ],
       [

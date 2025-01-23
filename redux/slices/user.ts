@@ -4,11 +4,13 @@ import { set } from "zod";
 interface UserState {
     token: string;
     userId: string;
+    ulbCode: string;
 }
 
 const initialState: UserState = {
     token: "",
     userId: "",
+    ulbCode: "",
 };
 
 const userSlice = createSlice({
@@ -20,9 +22,12 @@ const userSlice = createSlice({
         },
         setUserId:(state,action:PayloadAction<string>)=>{
             state.userId = action.payload;
-        }
+        },
+        setUlbCode:(state,action:PayloadAction<string>)=>{
+            state.ulbCode = action.payload;
+        },
     }
 });
 
-export const {setUserToken,setUserId} = userSlice.actions;
+export const {setUserToken,setUserId,setUlbCode} = userSlice.actions;
 export default userSlice.reducer;

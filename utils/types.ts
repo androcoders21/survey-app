@@ -1,3 +1,5 @@
+import { FloorDetailsType, OwnerDetailsType } from "./validation-schema";
+
 export interface LoginResponse {
     access_token: string;
     token_type: string;
@@ -268,5 +270,126 @@ export interface FileObject {
     name?: string; // Optional property
     type?: string; // Optional property
     size?: number; // Optional property (if needed)
-  }
+}
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    mobile: string;
+    address: string;
+    profile: string;
+    aadhar: string;
+    pan: string;
+    roll_id: number;
+    status: number;
+    survey_locations_id: number;
+    created_at: string;
+    updated_at: string;
+}
+interface PropertyFloorData {
+    id: number;
+    floorType: number;
+    floorTypeOther: string | null;
+    areaSqFt: string;
+    areaSqMt: string;
+    usageType: number;
+    usageTypeOther: string | null;
+    usageFactor: number;
+    usageFactorOther: string | null;
+    constructionType: number;
+    constructionTypeOther: string | null;
+    properties_id: number;
+    created_at: string;
+    updated_at: string;
+    floor_type: FloorTypeType;
+    usage_type: UsageType;
+    usage_factor: FactorType;
+    construction_type: ConstructionType;
+}
+
+export interface PropertyData {
+    id: number;
+    ulbNameCode: string;
+    wardNo: string;
+    isSlum: string;
+    nagarpalikaId: string | null;
+    parcelNo: string;
+    propertyNo: string;
+    electricityId: string | null;
+    khasraNo: string | null;
+    registryNo: string | null;
+    constructedDate: string;
+    slumId: string | null;
+    respondentName: string;
+    respondentRelationship: string;
+    respondentRelationshipOther: string | null;
+    ownerDetails: OwnerDetailsType[];
+    ownerAadhaarNumber: string;
+    aadhaarPhoto: string | null;
+    city: string;
+    pincode: string;
+    houseNo: string;
+    streetNoName: string;
+    locality: string;
+    colony: string;
+    presentHouseNo: string;
+    presentStreetNoName: string;
+    presentLocality: string;
+    presentColony: string;
+    presentCity: string;
+    presentPincode: string;
+    colonyOther: string | null;
+    isSameAsProperty: string;
+    taxRateZone: string;
+    taxRateZoneOther: string | null;
+    propertyOwnership: string;
+    propertyOwnershipOther: string | null;
+    situation: PropertySituation;
+    situationOther: string | null;
+    propertyUse: string;
+    propertyOther: string | null;
+    commercial: CommercialUses;
+    commercialOther: string | null;
+    yearOfConstruction: string;
+    yearOfConstructionOther: string | null;
+    isExemptionApplicable: string;
+    exemptionType: string;
+    exemptionTypeOther: string | null;
+    floors: PropertyFloorData[];
+    plotAreaSqFt: string;
+    plotAreaSqMeter: string;
+    plinthAreaSqFt: string;
+    plinthAreaSqMeter: string;
+    totalBuiltUpAreaSqFt: string;
+    totalBuiltUpAreaSqMeter: string;
+    isMuncipalWaterSupply: string;
+    toiletType: string;
+    isMuncipalWasteService: string;
+    totalWaterConnection: string;
+    waterConnectionId: string | null;
+    waterConnectionType: string;
+    waterConnectionTypeOther: string | null;
+    sourceOfWater: string | null;
+    sourceOfWaterOther: string | null;
+    propertyFirstImage: string;
+    propertySecondImage: string;
+    latitude: string;
+    longitude: string;
+    supportingDocuments: string[];
+    user_id: number;
+    remark: string;
+    created_at: string;
+    updated_at: string;
+    user: User;
+    ward: WardType;
+    tax_rate_zone: RateZone;
+    property_ownership: PropertyOwnership;
+    property_use: PropertyUses;
+    year_of_construction: YearOfConstruction;
+    exemption_type: ExemptionType;
+    water_connection_type: UsageType;
+    toiletTypeOther: string | null;
+}
 

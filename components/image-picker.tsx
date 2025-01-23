@@ -31,22 +31,27 @@ const CustomImagePicker = ({ label, handleImage }: CapturePhotoProps) => {
             mediaRequestPermission();
             return;
         }
-        const image = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            quality: 0.4,
-        });
-        handleClose();
-        // onUpload(name, image);
-        if (!image?.canceled) {
-            const { assets } = image;
-            const imageValue = assets[0];
-            console.log(imageValue);
-            const fileName = imageValue?.fileName || Date.now().toString();
-            const fileUri = imageValue.uri;
-            const mimeType = imageValue.mimeType || 'image/jpeg';
-            const size = imageValue.fileSize || 0;
-            handleImage({ name: fileName, uri: fileUri, type: mimeType, size: size });
+        try {
+            const image = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                quality: 0.4,
+            });
+            handleClose();
+            // onUpload(name, image);
+            if (!image?.canceled) {
+                const { assets } = image;
+                const imageValue = assets[0];
+                console.log(imageValue);
+                const fileName = imageValue?.fileName || Date.now().toString();
+                const fileUri = imageValue.uri;
+                const mimeType = imageValue.mimeType || 'image/jpeg';
+                const size = imageValue.fileSize || 0;
+                handleImage({ name: fileName, uri: fileUri, type: mimeType, size: size });
+            }
+
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -55,31 +60,35 @@ const CustomImagePicker = ({ label, handleImage }: CapturePhotoProps) => {
             cameraRequestPermission();
             return;
         }
-        const image = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.5 });
-        // onUpload(name, image);
-        handleClose();
-        if (!image?.canceled) {
-            const { assets } = image;
-            const imageValue = assets[0];
-            console.log(imageValue);
-            const fileName = imageValue?.fileName || Date.now().toString();
-            const fileUri = imageValue.uri;
-            const mimeType = imageValue.mimeType || 'image/jpeg';
-            const size = imageValue.fileSize || 0;
-            handleImage({ name: fileName, uri: fileUri, type: mimeType, size: size });
-            // try {
-            //     if(FileSystem.documentDirectory){
-            //     const newPath = FileSystem.documentDirectory + fileName;
-            //     await FileSystem.moveAsync({
-            //         from: fileUri,
-            //         to: newPath,
-            //     })
-            //     setImageUri(fileName);
-            // }
-            // } catch (error) {
-            //     console.log(error);
-            //     ToastAndroid.show('Error while uploading image', ToastAndroid.SHORT);
-            // }
+        try {
+            const image = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.5 });
+            // onUpload(name, image);
+            handleClose();
+            if (!image?.canceled) {
+                const { assets } = image;
+                const imageValue = assets[0];
+                console.log(imageValue);
+                const fileName = imageValue?.fileName || Date.now().toString();
+                const fileUri = imageValue.uri;
+                const mimeType = imageValue.mimeType || 'image/jpeg';
+                const size = imageValue.fileSize || 0;
+                handleImage({ name: fileName, uri: fileUri, type: mimeType, size: size });
+                // try {
+                //     if(FileSystem.documentDirectory){
+                //     const newPath = FileSystem.documentDirectory + fileName;
+                //     await FileSystem.moveAsync({
+                //         from: fileUri,
+                //         to: newPath,
+                //     })
+                //     setImageUri(fileName);
+                // }
+                // } catch (error) {
+                //     console.log(error);
+                //     ToastAndroid.show('Error while uploading image', ToastAndroid.SHORT);
+                // }
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -89,7 +98,7 @@ const CustomImagePicker = ({ label, handleImage }: CapturePhotoProps) => {
 
     return (
         <Box>
-            <Button onPress={()=>setShowModal(true)} className='border-slate-300 flex flex-row h-14 justify-between' variant='outline'><ButtonText className='text-center text-gray-500 text-sm'>{label}</ButtonText><FontAwesome name="file" size={22} color="gray" /></Button>
+            <Button onPress={() => setShowModal(true)} className='border-slate-300 flex flex-row h-14 justify-between' variant='outline'><ButtonText className='text-center text-gray-500 text-sm'>{label}</ButtonText><FontAwesome name="file" size={22} color="gray" /></Button>
             <Modal
                 isOpen={showModal}
                 onClose={handleClose}

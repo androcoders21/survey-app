@@ -134,7 +134,7 @@ export const surveyStepThreeSchema = z.object({
 });
 
 export const step1Schema = z.object({
-    ulbNameCode: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    ulbNameCode: z.string().min(1, { message: "Minimum 1 characters are required" }),
     wardNo: z.string().min(1, "Ward No is required"),
     nagarpalikaId: z.string().optional(),
     parcelNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
@@ -179,7 +179,7 @@ export const step2Schema = z.object({
 );
 
 export const step3Schema = z.object({
-    houseNo: z.string().min(1, { message: "Minimum 1 characters are required" }),
+    houseNo: z.string().optional(),
     streetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
     locality: z.string().min(3, { message: "Minimum 3 characters are required" }),
     colony: z.string().min(3, { message: "Minimum 3 characters are required" }),

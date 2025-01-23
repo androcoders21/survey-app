@@ -14,12 +14,12 @@ import { Control, Controller, FieldErrors, UseFormGetValues, UseFormSetValue, us
 import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import MonthYearPicker from './month-year-picker';
+import MonthYearPicker from '../month-year-picker';
 
 const formFields = {
     nagarpalikaId: "E-Nagarpalika ID",
     parcelNo: "Parcel No *",
-    propertyNo: "Property No *",
+    propertyNo: "Property No / Unit No *",
     electricityId: "Electricity ID",
     khasraNo: "Khasra No",
     registryNo: "Registry No"
@@ -48,7 +48,7 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                     name='ulbNameCode'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.ulbNameCode} isReadOnly={false}>
+                        <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.ulbNameCode} isReadOnly={true}>
                             <InputField
                                 className="text-sm"
                                 onChange={(e) => onChange(e.nativeEvent.text)}
@@ -67,7 +67,7 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                     name='wardNo'
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <Select isInvalid={!!errors.wardNo} defaultValue={value ? wardData.find((item: WardType) => item.id.toString() === value)?.name : ""} onValueChange={(data) => { setValue("wardNo", data); console.log(data) }}>
+                        <Select isInvalid={!!errors.wardNo} defaultValue={value ? wardData?.find((item: WardType) => item.id.toString() === value)?.name : ""} onValueChange={(data) => { setValue("wardNo", data); console.log(data) }}>
                             <SelectTrigger variant="outline" className='rounded-2xl' size="md" >
                                 <SelectInput className='text-sm font-bold' placeholder="Select ward" />
                                 <SelectIcon className="mr-3" as={ChevronDownIcon} />
@@ -103,7 +103,7 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                                     onChange={(e) => onChange(e.nativeEvent.text)}
                                     value={value as string}
                                     placeholder={`Enter ${heading}`}
-                                    multiline={key === "remarks"}
+                                    returnKeyType='next'
                                 />
                             </Input>
                         )}
@@ -111,7 +111,6 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                     {errors[key as keyof Step1Type] && <Text className='text-red-500' size='xs'>{(errors[key as keyof Step1Type] as any)?.message}</Text>}
                 </VStack>
             ))}
-
             <VStack space='xs' className='mb-3'>
                 <Text size='sm' bold>Construction Date</Text>
                 {/* {isDatePickerVisible && <RNDateTimePicker display='spinner' mode='date' maximumDate={new Date()} onChange={(event: DateTimePickerEvent, date: Date|undefined)=>handleDate(event,date)} value={new Date()}

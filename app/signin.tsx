@@ -31,7 +31,9 @@ const Signin = () => {
     const { formState: { errors }, control, handleSubmit } = useForm<LoginType>({
         resolver: zodResolver(loginSchema)
     })
+
     console.log("SIGNIN");
+
     const onSubmit = async (data: LoginType) => {
         // console.log(data) 
         setIsSubmitting(true);
@@ -45,12 +47,13 @@ const Signin = () => {
             if (user?.id) {
                 dispatch(setUserId(user?.id?.toString()));
                 storeToLocal('@userId', user?.id?.toString());
+                storeToLocal('@ulbCode',user?.survey_location?.code || '');
             } else {
                 ToastAndroid.show("User Id not found", ToastAndroid.SHORT);
             }
             setIsSubmitting(false);
             ToastAndroid.show("Successfully logged in", ToastAndroid.LONG);
-            router.replace('/(tabs)')
+            router.replace('/(tabs)/main')
         } catch (error) {
             console.log(error);
             setIsSubmitting(false);

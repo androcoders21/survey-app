@@ -13,7 +13,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { Heading } from '@/components/ui/heading';
 import { useGetUserDetailsMutation } from '@/redux/api/end-points/user';
 import { useEffect, useState } from 'react';
-import { clearLocal, formatDate } from '@/utils/helper';
+import { clearSession, formatDate } from '@/utils/helper';
 import { setUserId, setUserToken } from '@/redux/slices/user';
 import { apiSlice } from '@/redux/api/api-slice';
 
@@ -35,11 +35,12 @@ export default function TabFiveScreen() {
   },[])
 
   const handleLogout = () => {
-    clearLocal();
-    dispatch(setUserToken(""));
-    dispatch(setUserId(""));
-    dispatch(apiSlice.util.resetApiState());
-    router.replace('/signin');
+    clearSession().then(()=>{
+      dispatch(setUserToken(""));
+      dispatch(setUserId(""));
+      dispatch(apiSlice.util.resetApiState());
+      router.replace('/signin');
+    });
   }
   if(isLoading){
     return (

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, Platform, KeyboardAvoidingView, ToastAndroid } from 'react-native';
+import { StyleSheet, Platform, KeyboardAvoidingView, ToastAndroid, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
@@ -9,28 +9,43 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreatePropertyMutation } from '@/redux/api/end-points/survey';
 import { useAppDispatch } from '@/utils/hooks';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { useFetchWardQuery } from '@/redux/api/end-points/ward';
-import { getFromLocal, saveDraftData } from '@/utils/helper';
+import { getFromLocal, storeToLocal } from '@/utils/helper';
 import { CombinedSurveyType, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema } from '@/utils/validation-schema';
-import StepOne from './step-one';
-import StepTwo from './step-two';
-import StepThree from './step-three';
-import StepFour from './step-four';
-import StepFive from './step-five';
-import StepSix from './step-six';
-import StepSeven from './step-seven';
+import StepOne from '../add/step-one';
+import StepTwo from '../add/step-two';
+import StepThree from '../add/step-three';
+import StepFour from '../add/step-four';
+import StepFive from '../add/step-five';
+import StepSix from '../add/step-six';
+import StepSeven from '../add/step-seven';
 
 interface FormProps {
   currentStep: number;
   setCurrentStep: (step: number) => void;
+  id:string;
 }
 
-const Form = ({ currentStep, setCurrentStep }: FormProps) => {
+const Form = ({ currentStep, setCurrentStep,id }: FormProps) => {
+  const params = useLocalSearchParams<{ id: string }>();
+  const [draftData, setDraftData] = React.useState<CombinedSurveyType | undefined>(undefined);
+  const [isFetching, setIsFetching] = React.useState(true);
   const [createSurvey, { isLoading }] = useCreatePropertyMutation();
-  const { isFetching, data: wardData } = useFetchWardQuery();
-  const dispatch = useAppDispatch();
+  const { data: wardData } = useFetchWardQuery();
+
+  useEffect(() => {
+          getFromLocal(params.id).then((data) => {
+              console.log(data);
+              setDraftData(data ? JSON.parse(data) : undefined);
+              reset(data ? JSON.parse(data) : undefined);
+          }).catch((error) => {
+              console.log(error);
+          }).finally(() => {
+              setIsFetching(false);
+          });
+      }, []);
 
   const hadelValidation = (type: number) => {
     switch (type) {
@@ -56,16 +71,16 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
   const { control, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<CombinedSurveyType>({
     // resolver: hadelValidation(currentStep),
     defaultValues: {
-      ulbNameCode: "",
-      wardNo: "",
-      isSlum: "no",
-      nagarpalikaId: "",
-      parcelNo: "",
-      propertyNo: "",
-      electricityId: "",
-      khasraNo: "",
-      registryNo: "",
-      constructedDate: "",
+      ulbNameCode:  "",
+      wardNo: draftData?.wardNo || "",
+      isSlum: draftData?.isSlum || "no",
+      nagarpalikaId: draftData?.nagarpalikaId || "",
+      parcelNo: draftData?.parcelNo || "",
+      propertyNo: draftData?.propertyNo || "",
+      electricityId: draftData?.electricityId || "",
+      khasraNo: draftData?.khasraNo || "",
+      registryNo: draftData?.registryNo || "",
+      constructedDate: draftData?.constructedDate || "",
       slumId: "",
       respondentName: "",
       respondentRelationship: "",
@@ -126,30 +141,6 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
     },
   });
 
-  useEffect(() => {
-
-    async function getCurrentLocation() {
-
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        ToastAndroid.show('Permission to access location was denied', ToastAndroid.SHORT);
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({ accuracy: 4 });
-      setValue("latitude", location.coords.latitude.toString());
-      setValue("longitude", location.coords.longitude.toString());
-      const address = await Location.reverseGeocodeAsync({ latitude:location.coords.latitude, longitude:location.coords.longitude });
-      setValue("city",address[0]?.city || "");
-      setValue("pincode",address[0]?.postalCode || "");
-    }
-    getCurrentLocation();
-    getFromLocal('@ulbCode').then((code) => {
-      setValue("ulbNameCode", code || "");
-    });
-  }, [])
-
-
   const onSubmit = async (data: any) => {
     if (currentStep !== 7) {
       console.log(data);
@@ -159,14 +150,12 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
     console.log("Last Step", getValues());
     const values = getValues();
     try {
-      saveDraftData(values).then((isSaved) => {
+      storeToLocal(params.id,JSON.stringify(values)).then((isSaved) => {
         console.log("Draft Saved", isSaved);
-        if (isSaved) {
-          ToastAndroid.show("Survey saved in drafts", ToastAndroid.SHORT);
+          ToastAndroid.show("Survey updated in drafts", ToastAndroid.SHORT);
           router.replace({ pathname: '/(tabs)/main' });
-        }else{
+      }).catch(()=>{
         ToastAndroid.show("Unable to save in draft", ToastAndroid.SHORT);
-        }
       });
     } catch (error) {
       console.log('Error', error);
@@ -203,6 +192,14 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  if (isFetching || !draftData) {
+          return (
+              <Box className='mt-4' style={styles.container}>
+                  <ActivityIndicator size={30}/>
+              </Box>
+          )
+      }
 
   return (
     <SafeAreaView style={styles.container}>
