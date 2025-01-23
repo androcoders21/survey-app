@@ -40,6 +40,7 @@ const Survey = () => {
         )
     }
 
+
     return (
         <Box>
             <Stack.Screen options={{
