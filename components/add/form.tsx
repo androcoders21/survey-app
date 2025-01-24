@@ -54,7 +54,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
   };
 
   const { control, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<CombinedSurveyType>({
-    resolver: hadelValidation(currentStep),
+    // resolver: hadelValidation(currentStep),
     defaultValues: {
       ulbNameCode: "",
       wardNo: "",

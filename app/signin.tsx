@@ -47,7 +47,7 @@ const Signin = () => {
             if (user?.id) {
                 dispatch(setUserId(user?.id?.toString()));
                 storeToLocal('@userId', user?.id?.toString());
-                storeToLocal('@ulbCode',user?.survey_location?.code || '');
+                storeToLocal('@ulbCode',`${user?.survey_location?.name || ""} (${user?.survey_location?.code || ''})`);
             } else {
                 ToastAndroid.show("User Id not found", ToastAndroid.SHORT);
             }
