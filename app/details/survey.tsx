@@ -6,10 +6,11 @@ import { useFetchPropertyByIdQuery } from '@/redux/api/end-points/survey'
 import { PropertyData } from '@/utils/types'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import React, { useMemo } from 'react'
-import { ActivityIndicator } from 'react-native'
+import { ActivityIndicator, Image } from 'react-native'
 import { StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { FloorDetailsType, OwnerDetailsType } from '@/utils/validation-schema';
+import { baseUrl } from '@/redux/api/api-slice';
 
 const Survey = () => {
     const params = useLocalSearchParams<{ id: string }>();
@@ -17,13 +18,14 @@ const Survey = () => {
 
     const propertyData = useMemo(() => {
         if (Array.isArray(data?.data) && data?.data.length) {
-            const myData = {...data?.data[0]};
+            const myData = { ...data?.data[0] };
             if (myData.ownerDetails && typeof myData.ownerDetails === 'string') {
                 myData.ownerDetails = JSON.parse(myData.ownerDetails);
             }
             return myData as PropertyData;
         }
     }, [data]);
+    console.log(`https://app.npanandnagar.in/public/storage/${propertyData?.aadhaarPhoto}`)
 
     console.log(params.id);
     if (isFetching) {
@@ -49,7 +51,7 @@ const Survey = () => {
                 headerShown: true,
                 headerShadowVisible: false,
             }} />
-            <ScrollView contentContainerStyle={{paddingBottom:50}} className='p-3'>
+            <ScrollView contentContainerStyle={{ paddingBottom: 50 }} className='p-3'>
                 {/* Owner Detail */}
                 <Box style={styles.item}>
                     <Text style={styles.sectionTitle}>Owner Detail</Text>
@@ -209,6 +211,37 @@ const Survey = () => {
                         />
                     </MapView>
                 </Box>
+                {/* Property Images */}
+                
+                <Box style={styles.imageScrollView}>
+                    <Text style={styles.sectionTitle}>Property Images</Text>
+                    <ScrollView horizontal>
+                        <Image
+                            source={{uri: `https://app.npanandnagar.in/public/storage/${propertyData?.propertyFirstImage}` as any}}
+                            style={styles.image}
+                            resizeMode="contain"
+                        />
+                        <Image
+                            source={{uri: `https://app.npanandnagar.in/public/storage/${propertyData?.propertySecondImage}` as any}}
+                            style={styles.image}
+                            resizeMode="contain"
+                        />
+                        <Image
+                            source={{uri: `https://app.npanandnagar.in/public/storage/${propertyData?.aadhaarPhoto}` as any}}
+                            style={styles.image}
+                            resizeMode="contain"
+                        />
+                        {propertyData?.supportingDocuments && propertyData?.supportingDocuments.map((doc, index) => (
+                            <Image
+                                key={index}
+                                source={{uri:`https://app.npanandnagar.in/public/storage/${doc}` as any}}
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
+                        ))}
+                    </ScrollView>
+                </Box>
+
             </ScrollView>
         </Box>
     )
@@ -239,14 +272,14 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 15,
         marginBottom: 5,
-        backgroundColor: '#FFF8F2',
-        padding: 2,
+        // backgroundColor: '#FFF8F2',
+        // padding: 2,
         borderRadius: 5,
         paddingLeft: 5,
     },
     title: {
         fontSize: 14,
-        // fontWeight: 'bold',
+        fontWeight: 'bold',
         marginBottom: 5,
     },
     details: {
@@ -290,6 +323,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
         boxShadow: '0 1px 8px rgba(0,0,0,0.5)',
+    },
+    imageScrollView: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#ffffff',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    },
+    image: {
+        width: 200,
+        height: 300,
+        margin: 10,
+        backgroundColor: '#f0f0f0',
+        
     },
     buttonText: {
         color: '#000',

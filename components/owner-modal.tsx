@@ -22,6 +22,7 @@ const ownerFields = {
     mobile: "Mobile No. *",
     // landline: "Landline No.",
     email: "Email",
+    secondaryPhone: "Secondary Phone",
 }
 
 const OwnerModal = ({ showModal, closeModal,append }: OwnerModalProps) => {

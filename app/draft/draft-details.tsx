@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, Image } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { router, Stack } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
@@ -292,7 +292,7 @@ const draftData = () => {
                 </Box>
 
                 {/* Property Location */}
-                <Box className='mb-28' style={styles.item}>
+                <Box style={styles.item}>
                     <Text style={styles.sectionTitle}>Property Location</Text>
                     <Text style={styles.details}>Latitude: {latitude}</Text>
                     <Text style={styles.details}>Longitude: {longitude}</Text>
@@ -313,6 +313,36 @@ const draftData = () => {
                             title="Property Location"
                         />
                     </MapView>
+                </Box>
+                
+                {/* Property Images */}
+                <Box style={styles.imageScrollView}>
+                <Text style={styles.sectionTitle}>Property Images</Text>
+                <ScrollView horizontal>
+                            <Image
+                                source={{ uri: draftData.propertyFirstImage.uri }}
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
+                            <Image
+                                source={{ uri: draftData.propertySecondImage.uri }}
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
+                            <Image
+                                source={{ uri: draftData.aadhaarPhoto }}
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
+                            {draftData.supportingDocuments && draftData.supportingDocuments.map((doc, index) => (
+                                <Image
+                                    key={index}
+                                    source={{ uri: doc.uri }}
+                                    style={styles.image}
+                                    resizeMode="contain"
+                                />
+                            ))}
+                </ScrollView>
                 </Box>
             </ScrollView>
             <View style={styles.buttonContainer}>
@@ -372,7 +402,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 15,
         marginBottom: 5,
-        backgroundColor: '#FFF8F2',
         padding: 2,
         borderRadius: 5,
         paddingLeft: 5,
@@ -394,7 +423,6 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         position: 'absolute',
-
         bottom: 0,
         width: '100%',
         flexDirection: 'row',
@@ -418,11 +446,29 @@ const styles = StyleSheet.create({
     editButton: {
         width: '40%',
         height: 40,
-        backgroundColor: '#fff',
+        backgroundColor: '#ffffff',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
         boxShadow: '0 1px 8px rgba(0,0,0,0.5)',
+    },
+    imageScrollView: {
+        backgroundColor: '#ffffff',
+        paddingVertical: 10,
+        marginVertical: 5,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        marginBottom: 80,
+        padding: 10,
+    },
+    image: {
+        width: 200,
+        height: 300,
+        margin: 10,
+        backgroundColor: '#f0f0f0',
+        
     },
     buttonText: {
         color: '#000',

@@ -164,6 +164,8 @@ export const step2Schema = z.object({
             .refine((value) => value === undefined || value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
                 message: "Invalid email address",
             }),
+        secondaryPhone: z.string().optional().refine((value) => value === undefined || value === "" || /^\d{10}$/.test(value)),
+
     })).min(1, "At least one owner is required"),
 }).refine(
     (data) => {
@@ -206,6 +208,8 @@ export const step4Schema = z.object({
     propertyOther: z.string().optional(),
     commercial: z.string().optional(),
     commercialOther: z.string().optional(),
+    roadType: z.string().min(1, "Road Type is required"),
+    roadTypeOther: z.string().optional(),
     yearOfConstruction: z.string().min(1, "Property Ownership is required"),
     yearOfConstructionOther: z.string().optional(),
     isExemptionApplicable: z.string().optional(),
@@ -308,7 +312,21 @@ export const step4Schema = z.object({
             message: "Exemption Type Other is required when 'Other' is selected",
             path: ["exemptionTypeOther"],
         }
+    )
+    .refine(
+        (data) => {
+            // If exemptionType is "Other", exemptionTypeOther is required
+            if ( data.roadType === "Other" && !data.roadTypeOther) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Road Type Other is required when 'Other' is selected",
+            path: ["roadTypeOther"],
+        }
     );
+    
 
 export const step5Schema = z.object({
     plotAreaSqFt: z.string().min(1, "Plot Area (Square Feet) is required"),
@@ -510,6 +528,8 @@ export const ownerDetailsSchema = z.object({
         .refine((value) => value === undefined || value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
             message: "Invalid email address",
         }),
+        secondaryPhone: z.string().optional().refine((value) => value === undefined || value === "" || /^\d{10}$/.test(value), {
+        }),        
 });
 
 export type OwnerDetailsType = z.infer<typeof ownerDetailsSchema>;

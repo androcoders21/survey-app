@@ -29,6 +29,7 @@ interface OwnerDetails {
     mobile: string,
     landline: string,
     email: string,
+    SecondaryNumber: string,
 }
 
 const StepTwo = ({ control, errors, setValue }: StepTwoProps) => {
