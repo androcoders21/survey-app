@@ -59,6 +59,7 @@ const Main = () => {
                 setDraftLength(data ? data.length : 0);
             })
             refetchRefereshToken();
+            console.log(isTokenFetching);
             getCurrentLocation();
         }, [])
     )
@@ -85,8 +86,9 @@ const Main = () => {
             console.log("Session Cleared");
             dispatch(setUserToken(""));
             dispatch(setUserId(""));
-            dispatch(apiSlice.util.resetApiState());
+            setTimeout(()=>dispatch(apiSlice.util.resetApiState()),2000);
             router.replace('/signin');
+            console.log("Logged Out");
         })
     }
 

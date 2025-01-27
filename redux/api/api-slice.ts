@@ -9,8 +9,6 @@ getFromLocal("@token").then((data)=>{
     apiToken = data;
 });
 
-
-
 export const baseUrl = 'https://app.npanandnagar.in/api/';
 export const apiSlice = createApi({
     baseQuery:fetchBaseQuery({

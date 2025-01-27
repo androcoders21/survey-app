@@ -139,7 +139,7 @@ const draftData = () => {
         clearSession().then(() => {
             dispatch(setUserToken(""));
             dispatch(setUserId(""));
-            dispatch(apiSlice.util.resetApiState());
+            setTimeout(()=>dispatch(apiSlice.util.resetApiState()),2000);
             router.replace('/signin');
         });
     };

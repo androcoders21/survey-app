@@ -4,6 +4,7 @@ import { router, Stack, useFocusEffect } from 'expo-router';
 import { getDraftData } from '@/utils/helper';
 import { KeyValuePair } from '@react-native-async-storage/async-storage/lib/typescript/types';
 import { CombinedSurveyType } from '@/utils/validation-schema';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Draft = () => {
   const [draftData, setDraftData] = React.useState<KeyValuePair[] | undefined>([]);
@@ -67,7 +68,7 @@ const Draft = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Stack.Screen options={{
         title: 'All Drafts',
         headerTitle: "All Drafts",
@@ -79,14 +80,13 @@ const Draft = () => {
         renderItem={renderItem}
         keyExtractor={item => item[0]}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
     paddingHorizontal: 10,
     backgroundColor: '#f0f0f0',
   },
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderLeftWidth: 5,
     padding: 10,
-    marginVertical: 5,
     borderRadius: 5,
     borderWidth: 1,
     borderLeftColor: '#05827a',
