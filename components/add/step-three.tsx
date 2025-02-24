@@ -89,7 +89,7 @@ const StepThree = ({ control, errors, setValue, getValues }: StepThreeProps) => 
                 </VStack>
             ))}
             <Checkbox value='yes' isChecked={isSameAsProperty} onChange={(value) => handleCheckBox(value)} size="md" isInvalid={false} isDisabled={false}>
-                <CheckboxLabel className='text-sm font-bold my-4'>Present address: (Same as property address)</CheckboxLabel>
+                <CheckboxLabel className='text-sm font-bold flex-1 my-4'>Present address: (Same as property address)</CheckboxLabel>
                 <CheckboxIndicator>
                     <CheckboxIcon as={CheckIcon} />
                 </CheckboxIndicator>

@@ -1,14 +1,9 @@
 import React from 'react'
 import { Button, ButtonText } from './ui/button'
 import { Box } from './ui/box'
-import { Control, Controller, FieldValues } from 'react-hook-form'
-import { Text } from './ui/text'
-import { SurveyStepThreeType } from '@/utils/validation-schema'
 import * as ImagePicker from 'expo-image-picker';
-// import * as FileSystem from 'expo-file-system';
-import { Image } from 'expo-image';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { StyleSheet, ToastAndroid } from 'react-native'
+import { StyleSheet } from 'react-native'
 
 interface ImageArgs {
     name: string;
@@ -23,10 +18,14 @@ interface CapturePhotoProps {
 
 const CapturePhoto = ({ label, handleImage }: CapturePhotoProps) => {
 
+    const [isCameraActive, setIsCameraActive] = React.useState(false);
     const [imageUri, setImageUri] = React.useState("");
+
     const handleUpload = async () => {
+        if (isCameraActive) return; 
+        setIsCameraActive(true);
         try {
-            const image = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.5 });
+            const image = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.3 });
             // onUpload(name, image);
             if (!image?.canceled) {
                 const { assets } = image;
@@ -37,22 +36,12 @@ const CapturePhoto = ({ label, handleImage }: CapturePhotoProps) => {
                 const mimeType = imageValue.mimeType || 'image/jpeg';
                 const size = imageValue.fileSize || 0;
                 handleImage({ name: fileName, uri: fileUri, type: mimeType, size: size });
-                // try {
-                //     if(FileSystem.documentDirectory){
-                //     const newPath = FileSystem.documentDirectory + fileName;
-                //     await FileSystem.moveAsync({
-                //         from: fileUri,
-                //         to: newPath,
-                //     })
-                //     setImageUri(fileName);
-                // }
-                // } catch (error) {
-                //     console.log(error);
-                //     ToastAndroid.show('Error while uploading image', ToastAndroid.SHORT);
-                // }
+                setTimeout(()=>setIsCameraActive(false), 1000);
             }
         } catch (error) {
             console.log(error);
+        }finally{
+            setIsCameraActive(false);
         }
     }
 
@@ -63,7 +52,7 @@ const CapturePhoto = ({ label, handleImage }: CapturePhotoProps) => {
     )
 }
 
-export default CapturePhoto
+export default React.memo(CapturePhoto)
 
 const styles = StyleSheet.create({
     image: {

@@ -293,7 +293,7 @@ const Form = ({ currentStep, setCurrentStep }: FormProps) => {
         <Button
           isDisabled={isLoading}
           onPress={handleSubmit(onSubmit)}
-          className='h-12 rounded-xl w-40 mx-2'
+          className={`h-12 rounded-xl mx-2 ${currentStep === 7 ? 'w-auto' : 'w-40'}`}
         >
           {isLoading && <ButtonSpinner size={30} color={'black'} />}
           <ButtonText className='text-center'>
