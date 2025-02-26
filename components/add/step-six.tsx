@@ -219,7 +219,7 @@ const StepSix = ({ control, errors, setValue }: StepSixProps) => {
                 {errors.toiletType && <Text className="pl-2 text-red-500" size="xs">{errors?.toiletType?.message}</Text>}
             </VStack>
             {toiletType === "Other" && <VStack space='xs' className='mb-3' >
-                    <Text size='sm' bold>Water Connection Type Other *</Text>
+                    <Text size='sm' bold>Toilet Type Other *</Text>
                     <Controller
                         name="toiletTypeOther"
                         control={control}
