@@ -15,6 +15,9 @@ import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import RNDateTimePicker, { DateTimePickerAndroid, DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MonthYearPicker from '../month-year-picker';
+import { useFetchCommercialUsesQuery, useFetchExemptionQuery, useFetchPropertyOwnershipQuery, useFetchPropertySituationQuery, useFetchPropertyUsesQuery, useFetchTaxRateQuery, useFetchYearOfConstructionQuery } from '@/redux/api/end-points/property-type';
+import { useFetchConstructionTypeQuery, useFetchFloorTypeQuery, useFetchUsageFactorQuery, useFetchUsageTypeQuery } from '@/redux/api/end-points/property-type';
+
 
 const formFields = {
     nagarpalikaId: "E-Nagarpalika ID",
@@ -32,13 +35,24 @@ interface StepOneProps {
 }
 
 const StepOne = ({ control, errors, setValue }: StepOneProps) => {
-    const { isFetching, data: wardData, error } = useFetchWardQuery();
+    const { isFetching, data: wardData, error: wardError } = useFetchWardQuery();
+    const { data: taxRateData, error: taxRateError } = useFetchTaxRateQuery();
+    const { data: ownershipData } = useFetchPropertyOwnershipQuery();
+    const { data: propertySituationData } = useFetchPropertySituationQuery();
+    const { data: propertyUseData } = useFetchPropertyUsesQuery();
+    const { data: commercialData } = useFetchCommercialUsesQuery();
+    const { data: yocData } = useFetchYearOfConstructionQuery();
+    const { data: exemptionData } = useFetchExemptionQuery();
+    const { data: floorData } = useFetchFloorTypeQuery();
+    const { data: usageTypeData } = useFetchUsageTypeQuery();
+    const { data: usageFactorData } = useFetchUsageFactorQuery();
+    const { data: constructionTypeData } = useFetchConstructionTypeQuery();
     const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
     const [isSlum, constructedDate] = useWatch({ control, name: ["isSlum", "constructedDate"] });
 
-    const handleDate = (month:string,year:number) => {
-        console.log(month,year);
-        setValue("constructedDate",`${month} ${year}`);
+    const handleDate = (month: string, year: number) => {
+        console.log(month, year);
+        setValue("constructedDate", `${month} ${year}`);
     }
     return (
         <Box className='pt-2'>
@@ -115,17 +129,17 @@ const StepOne = ({ control, errors, setValue }: StepOneProps) => {
                 <Text size='sm' bold>Construction Date</Text>
                 {/* {isDatePickerVisible && <RNDateTimePicker display='spinner' mode='date' maximumDate={new Date()} onChange={(event: DateTimePickerEvent, date: Date|undefined)=>handleDate(event,date)} value={new Date()}
                 />} */}
-                <MonthYearPicker open={isDatePickerVisible} onClose={()=>setDatePickerVisibility(false)} onConfirm={handleDate}/>
-                    <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.constructedDate} isReadOnly={true}>
-                        <InputField
-                            className="text-sm"
-                            value={constructedDate}
-                            placeholder={`Enter Construction Date`}
-                        />
-                        <InputSlot onPress={() => setDatePickerVisibility(true)} className='p-2.5 bg-gray-300' >
-                            <AntDesign name="calendar" size={20} color="black" />
-                        </InputSlot>
-                    </Input>
+                <MonthYearPicker open={isDatePickerVisible} onClose={() => setDatePickerVisibility(false)} onConfirm={handleDate} />
+                <Input variant="outline" className="rounded-2xl" size="lg" isDisabled={false} isInvalid={!!errors.constructedDate} isReadOnly={true}>
+                    <InputField
+                        className="text-sm"
+                        value={constructedDate}
+                        placeholder={`Enter Construction Date`}
+                    />
+                    <InputSlot onPress={() => setDatePickerVisibility(true)} className='p-2.5 bg-gray-300' >
+                        <AntDesign name="calendar" size={20} color="black" />
+                    </InputSlot>
+                </Input>
                 {errors.constructedDate && <Text className='text-red-500' size='xs'>{errors?.constructedDate?.message}</Text>}
             </VStack>
             <RadioGroup value={isSlum} className='mb-2' onChange={(value) => setValue("isSlum", value)}>

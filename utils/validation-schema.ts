@@ -6,8 +6,8 @@ export const loginSchema = z.object({
 });
 
 export const surveySchema = z.object({
-    nameOfOwner: z.string().min(3, { message: "Minimum 3 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
-    fatherNameOfOwner: z.string().min(3, { message: "Minimum 3 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
+    nameOfOwner: z.string().min(2, { message: "Minimum 2 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
+    fatherNameOfOwner: z.string().min(2, { message: "Minimum 2 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
     email: z.string()
         .optional() // Makes the field optional
         .refine((value) => value === undefined || value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
@@ -15,11 +15,11 @@ export const surveySchema = z.object({
         }),
     mobile: z.string().regex(/^\d{10}$/, { message: "Mobile number must be exactly 10 digits" }),
     building_house_plot: z.string().min(1, { message: "Minimum 1 characters are required" }).max(50, { message: "Maximum 50 characters are allowed" }),
-    address_of_residence: z.string().min(3, { message: "Minimum 3 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
+    address_of_residence: z.string().min(2, { message: "Minimum 2 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
     landmark: z.string().optional(),
-    area: z.string().min(3, { message: "Minimum 3 characters are required" }).max(100, { message: "Maximum 100 characters are allowed" }),
-    city: z.string().min(3, { message: "Minimum 3 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
-    state: z.string().min(3, { message: "Minimum 3 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
+    area: z.string().min(2, { message: "Minimum 2 characters are required" }).max(100, { message: "Maximum 100 characters are allowed" }),
+    city: z.string().min(2, { message: "Minimum 2 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
+    state: z.string().min(2, { message: "Minimum 2 characters are required" }).max(30, { message: "Maximum 30 characters are allowed" }),
     pincode: z.string().min(6, { message: "Minimum 6 characters are required" }).max(6, { message: "Maximum 6 characters are allowed" }),
     ward_name: z.string(),
     udf1: z.string().optional(),
@@ -60,7 +60,7 @@ export const surveyStepTwoSchema = z.object({
             .max(30, { message: "Maximum 30 characters are allowed" })
             .refine((val) => parseFloat(val) >= 0, { message: "Value must be greater than 0" }),
     })).min(1, { message: 'Minimum 1 floor is required' }),
-    details_of_building_carpet_area: z.string().min(3, { message: "Minimum 3 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
+    details_of_building_carpet_area: z.string().min(2, { message: "Minimum 2 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
     details_of_location_a_is_located: z.string().min(1, { message: "Minimum 1 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
     details_of_location_b_nature: z.string().min(1, { message: "Minimum 1 characters are required" }).max(200, { message: "Maximum 200 characters are allowed" }),
     // is_occupied_by: z.string().min(2, { message: "Minimum 2 characters are required" }).max(100, { message: "Maximum 100 characters are allowed" }),
@@ -137,7 +137,7 @@ export const step1Schema = z.object({
     ulbNameCode: z.string().min(1, { message: "Minimum 1 characters are required" }),
     wardNo: z.string().min(1, "Ward No is required"),
     nagarpalikaId: z.string().optional(),
-    parcelNo: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    parcelNo: z.string().min(2, { message: "Minimum 2 characters are required" }),
     propertyNo: z.string().min(1, { message: "Minimum 1 character is required" }),
     electricityId: z.string().optional(),
     khasraNo: z.string().optional(),
@@ -148,15 +148,15 @@ export const step1Schema = z.object({
 });
 
 export const step2Schema = z.object({
-    respondentName: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    respondentRelationship: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    respondentName: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    respondentRelationship: z.string().min(2, { message: "Minimum 2 characters are required" }),
     respondentRelationshipOther: z.string().optional(),
     ownerAadhaarNumber: z.string().optional()
         .refine((value) => value === undefined || value === "" || /^\d{12}$/.test(value), { message: "Aadhaar number must be 12 digits" }),
     aadhaarPhoto: z.string().optional(),
     ownerDetails: z.array(z.object({
-        name: z.string().min(3, { message: "Minimum 3 characters are required" }),
-        fatherName: z.string().min(3, { message: "Minimum 3 characters are required" }),
+        name: z.string().min(2, { message: "Minimum 2 characters are required" }),
+        fatherName: z.string().min(2, { message: "Minimum 2 characters are required" }),
         mobile: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
         landline: z.string().optional(),
         email: z.string()
@@ -182,18 +182,18 @@ export const step2Schema = z.object({
 
 export const step3Schema = z.object({
     houseNo: z.string().optional(),
-    streetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    locality: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    colony: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    streetNoName: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    locality: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    colony: z.string().min(2, { message: "Minimum 2 characters are required" }),
     colonyOther: z.string().optional(),
-    city: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    city: z.string().min(2, { message: "Minimum 2 characters are required" }),
     pincode: z.string().min(6, "Pincode must be 6 digits").max(6, "Pincode must be 6 digits"),
     isSameAsProperty: z.boolean().optional(),
     presentHouseNo: z.string().min(1, { message: "Minimum 1 characters are required" }),
-    presentStreetNoName: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    presentLocality: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    presentColony: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    presentCity: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    presentStreetNoName: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    presentLocality: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    presentColony: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    presentCity: z.string().min(2, { message: "Minimum 2 characters are required" }),
     presentPincode: z.string().min(6, "Present Pincode must be 6 digits").max(6, "Present Pincode must be 6 digits"),
 });
 
@@ -354,7 +354,7 @@ export const step5Schema = z.object({
         const plinthAreaSqFt = parseFloat(data.plinthAreaSqFt);
 
         // Ensure plotAreaSqMeter is greater than plinthAreaSqMeter
-        return plotAreaSqFt > plinthAreaSqFt;
+        return plotAreaSqFt >= plinthAreaSqFt;
     },
     {
         message: "Plot Area must be greater than Plinth Area",
@@ -457,6 +457,12 @@ export const step7Schema = z.object({
         type: z.string().nonempty("File type is required"),
         size: z.number().positive("File size must be greater than 0")
     }),
+    ownerPhoto: z.object({
+        name: z.string().min(1, "Owner's photo is required"),
+        uri: z.string().min(1, "Photo URI is required"),
+        type: z.string(),
+        size: z.number()
+      }),
     latitude: z.string().optional(),
     longitude: z.string().optional(),
     supportingDocuments: z.array(z.object({
@@ -519,8 +525,8 @@ export const floorDetailsSchema = z.object({
             });
 
 export const ownerDetailsSchema = z.object({
-    name: z.string().min(3, { message: "Minimum 3 characters are required" }),
-    fatherName: z.string().min(3, { message: "Minimum 3 characters are required" }),
+    name: z.string().min(2, { message: "Minimum 2 characters are required" }),
+    fatherName: z.string().min(2, { message: "Minimum 2 characters are required" }),
     mobile: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
     landline: z.string().optional(),
     email: z.string()

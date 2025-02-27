@@ -66,6 +66,17 @@ const draftData = () => {
     const latitude = parseFloat(draftData?.latitude || '0');
     const longitude = parseFloat(draftData?.longitude || '0');
 
+    const handleDelete = async () => {
+        try {
+            await clearByKey(params.id);
+            ToastAndroid.show("Draft deleted successfully", ToastAndroid.SHORT);
+            router.back();
+        } catch (error) {
+            console.log('Error', error);
+            ToastAndroid.show("Unable to delete draft", ToastAndroid.SHORT);
+        }
+    };
+
     const handleSubmit = async () => {
         try {
             const formData = new FormData();
@@ -139,7 +150,7 @@ const draftData = () => {
         clearSession().then(() => {
             dispatch(setUserToken(""));
             dispatch(setUserId(""));
-            setTimeout(()=>dispatch(apiSlice.util.resetApiState()),2000);
+            setTimeout(() => dispatch(apiSlice.util.resetApiState()), 2000);
             router.replace('/signin');
         });
     };
@@ -314,35 +325,55 @@ const draftData = () => {
                         />
                     </MapView>
                 </Box>
-                
+
                 {/* Property Images */}
                 <Box style={styles.imageScrollView}>
-                <Text style={styles.sectionTitle}>Property Images</Text>
-                <ScrollView horizontal>
+                    <Text style={styles.sectionTitle}>Property Images</Text>
+                    <ScrollView horizontal>
+                        <Box>
+                            <Text style={styles.imageText}>Owner's Photo</Text>
+                            <Image
+                                source={{ uri: draftData.ownerPhoto.uri }}
+                                style={styles.image}
+                                resizeMode="cover"
+                            />
+                        </Box>
+                        <Box>
+                            <Text style={styles.imageText}>propertyFirstImage</Text>
                             <Image
                                 source={{ uri: draftData.propertyFirstImage.uri }}
                                 style={styles.image}
-                                resizeMode="contain"
+                                resizeMode="cover"
                             />
+                        </Box>
+                        <Box>
+                            <Text style={styles.imageText}>propertySecondImage</Text>
                             <Image
                                 source={{ uri: draftData.propertySecondImage.uri }}
                                 style={styles.image}
-                                resizeMode="contain"
+                                resizeMode="cover"
                             />
+                        </Box>
+                        <Box>
+                            <Text style={styles.imageText}>AdharImage</Text>
                             <Image
-                                source={{ uri: draftData.aadhaarPhoto }}
-                                style={styles.image}
-                                resizeMode="contain"
+                            source={{ uri: draftData.aadhaarPhoto }}
+                            style={styles.image}
+                                resizeMode="cover"
                             />
-                            {draftData.supportingDocuments && draftData.supportingDocuments.map((doc, index) => (
-                                <Image
-                                    key={index}
-                                    source={{ uri: doc.uri }}
-                                    style={styles.image}
-                                    resizeMode="contain"
-                                />
-                            ))}
-                </ScrollView>
+                        </Box>
+                        <Box>
+                            <Text style={styles.imageText}>Supporting Documents</Text>
+                        {draftData.supportingDocuments && draftData.supportingDocuments.map((doc, index) => (
+                            <Image
+                            key={index}
+                            source={{ uri: doc.uri }}
+                            style={styles.image}
+                            resizeMode="cover"
+                            />
+                        ))}
+                        </Box>
+                    </ScrollView>
                 </Box>
             </ScrollView>
             <View style={styles.buttonContainer}>
@@ -354,7 +385,7 @@ const draftData = () => {
                 </TouchableOpacity> */}
                 <Button
                     isDisabled={isLoading}
-                    className='h-12 rounded-xl w-40 mx-2'
+                    className='h-12 rounded-xl w-30 mx-2'
                     variant='outline'
                     onPress={() => router.push(`/form/new-edit?id=${params.id}`)}
                 >
@@ -364,8 +395,20 @@ const draftData = () => {
                 </Button>
                 <Button
                     isDisabled={isLoading}
+                    onPress={handleDelete}
+                    className='h-12 rounded-xl w-30 mx-2'
+                    variant='outline'
+                    style={{ borderColor: 'red', borderWidth: 1 }}
+                >
+                    {isLoading && <ButtonSpinner size={30} color={'black'} />}
+                    <ButtonText className='text-center' style={{ color: 'red' }}>
+                        Delete
+                    </ButtonText>
+                </Button>
+                <Button
+                    isDisabled={isLoading}
                     onPress={handleSubmit}
-                    className='h-12 rounded-xl w-40 mx-2'
+                    className='h-12 rounded-xl w-40 mx-2 ml-auto'
                 >
                     {isLoading && <ButtonSpinner size={30} color={'black'} />}
                     <ButtonText className='text-center'>
@@ -426,7 +469,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         width: '100%',
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        // justifyContent: 'space-around',
         backgroundColor: '#ffffff',
         paddingVertical: 10,
         alignItems: 'center',
@@ -468,7 +511,10 @@ const styles = StyleSheet.create({
         height: 300,
         margin: 10,
         backgroundColor: '#f0f0f0',
-        
+
+    },
+    imageText: {
+        paddingHorizontal: 10,
     },
     buttonText: {
         color: '#000',

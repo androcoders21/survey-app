@@ -13,7 +13,7 @@ import { Control, Controller, FieldErrors, UseFormSetValue, useWatch } from 'rea
 import { Dimensions, ScrollView } from 'react-native';
 import { useFetchCommercialUsesQuery, useFetchExemptionQuery, useFetchPropertyOwnershipQuery, useFetchPropertySituationQuery, useFetchPropertyUsesQuery, useFetchTaxRateQuery, useFetchYearOfConstructionQuery } from '@/redux/api/end-points/property-type';
 
-
+ 
 interface StepFourProps {
     control: Control<CombinedSurveyType, any>;
     errors: FieldErrors<CombinedSurveyType>

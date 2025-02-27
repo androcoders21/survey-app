@@ -31,7 +31,7 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
     console.log(errors);
     const currentLocation = useAppSelector((state) => state.map);
     const [isMapReady, setIsMapReady] = React.useState(false);
-    const [latitude, longitude, propertyFirstImage, propertySecondImage] = useWatch({ control, name: ['latitude', 'longitude', 'propertyFirstImage', 'propertySecondImage'] });
+    const [latitude, longitude, propertyFirstImage, propertySecondImage, ownerPhoto] = useWatch({ control, name: ['latitude', 'longitude', 'propertyFirstImage', 'propertySecondImage', 'ownerPhoto'] });
     const { fields, append, remove, } = useFieldArray({ control, name: 'supportingDocuments' });
     console.log(currentLocation);
 
@@ -48,6 +48,11 @@ const StepSeven = ({ control, errors, setValue }: StepSevenProps) => {
 
     return (
         <Box>
+            <Heading className='pb-3'>Owner's Photo:</Heading>
+            <VStack space='lg' className='mb-3'>
+                <CapturePhoto handleImage={(value) => setValue("ownerPhoto", { name: value.name, uri: value.uri, type: value.type, size: value.size })} label={ownerPhoto ? ownerPhoto?.name || "Capture owner's photo *" : "Capture owner's photo *"} />
+                {errors.ownerPhoto?.name && <Text className="pl-2 text-red-500" size="xs">{errors?.ownerPhoto?.name?.message}</Text>}
+            </VStack>
             <Heading className='pb-3'>Property Photo:</Heading>
             <VStack space='lg' className='mb-3'>
                 <CapturePhoto handleImage={(value) => setValue("propertyFirstImage", { name: value.name, uri: value.uri, type: value.type,size:value.size })} label={propertyFirstImage ? propertyFirstImage?.name || 'Capture first photo *' : 'Capture first photo *'} />

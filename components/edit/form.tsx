@@ -132,6 +132,7 @@ const Form = ({ currentStep, setCurrentStep,id }: FormProps) => {
       waterConnectionTypeOther: "",
       sourceOfWater: "",
       sourceOfWaterOther: "",
+      ownerPhoto: { name: '', uri: '', type: '', size: 0 },
       propertyFirstImage: { name: '', uri: '', type: '', size: 0 },
       propertySecondImage: { name: '', uri: '', type: '', size: 0 },
       latitude: "",
